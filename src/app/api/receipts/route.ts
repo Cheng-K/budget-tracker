@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { uploadReceipt } from "@/lib/s3";
 import { randomUUID } from "crypto";
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_SIZE = 4 * 1024 * 1024; // 4MB — Vercel rejects request bodies over 4.5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { error: "File must be under 5MB" },
+      { error: "File must be under 4MB" },
       { status: 400 }
     );
   }

@@ -24,8 +24,8 @@ export function ReceiptUpload({ currentReceiptId, onUploaded }: ReceiptUploadPro
       setError("Only JPEG, PNG, and WebP images are allowed");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("File must be under 5MB");
+    if (file.size > 4 * 1024 * 1024) {
+      setError("File must be under 4MB");
       return;
     }
 

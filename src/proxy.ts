@@ -3,17 +3,18 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Coarse auth redirect only — checks for the presence of a session cookie.
  *
- * This runs on the Edge runtime where Prisma is unavailable, so we must NOT
- * call `auth()` here (it would query the database via the Prisma adapter).
- * The authoritative check is `requireUser()` in every server action and
- * data-loading function on the Node side.
+ * This runs as the proxy layer, in its own invocation ahead of the app, so we
+ * must NOT call `auth()` here (it would query the database via the Prisma
+ * adapter and break the cheap-redirect design). The authoritative check is
+ * `requireUser()` in every server action and data-loading function.
  */
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isPublic =
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/cron") ||
     pathname === "/api/health" ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||

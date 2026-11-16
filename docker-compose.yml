@@ -44,6 +44,7 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+      DIRECT_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
       # Internal: how the Next.js server talks to the object store (Docker network).
       S3_ENDPOINT: http://s3:9090
       # Public: how the BROWSER reaches it — presigned URLs are minted against this.
@@ -65,6 +66,7 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+      DIRECT_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
     command: npx tsx src/jobs/recurring-sweep.ts
     restart: unless-stopped
 

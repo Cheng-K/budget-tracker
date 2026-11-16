@@ -69,6 +69,7 @@ This starts everything: the app (port 3000), Postgres (5432), S3 storage (9090),
 | Variable | Description | Example |
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://budget:budget@localhost:5432/budget` |
+| `DIRECT_URL` | Direct (non-pooled) connection string for `prisma migrate deploy`. Locally the same as `DATABASE_URL`; on Neon use the non-pooler string. | `postgresql://budget:budget@localhost:5432/budget` |
 | `AUTH_SECRET` | Session signing key | `openssl rand -base64 32` |
 | `AUTH_GOOGLE_ID` | Google OAuth client ID | `xxx.apps.googleusercontent.com` |
 | `AUTH_GOOGLE_SECRET` | Google OAuth client secret | `GOCSPX-xxx` |
@@ -79,7 +80,9 @@ This starts everything: the app (port 3000), Postgres (5432), S3 storage (9090),
 | `S3_PUBLIC_ENDPOINT` | Browser-reachable S3 endpoint | `http://localhost:9090` |
 | `AWS_ACCESS_KEY_ID` | S3 access key | `s3mock` |
 | `AWS_SECRET_ACCESS_KEY` | S3 secret key | `s3mock` |
+| `AWS_DEFAULT_REGION` | S3 region (`auto` for Cloudflare R2) | `us-east-1` |
 | `S3_BUCKET` | S3 bucket name for receipts | `receipts` |
+| `CRON_SECRET` | Bearer token for `/api/cron/recurring-sweep` (production/Vercel only) | `openssl rand -hex 32` |
 
 ## OAuth setup
 
@@ -116,6 +119,11 @@ npm run lint
 # Build
 npm run build
 ```
+
+## Deployment
+
+- **Vercel + Neon + Cloudflare R2 (serverless)** — [docs/deploy-vercel.md](docs/deploy-vercel.md)
+- **VPS with Docker Compose + Caddy** — [docs/deploy-vps.md](docs/deploy-vps.md)
 
 ## Architecture
 
@@ -168,7 +176,7 @@ src/
 │   ├── csv.ts            # RFC 4180 CSV writer
 │   └── validation.ts     # Zod schemas
 ├── jobs/                 # Background workers
-└── middleware.ts         # Coarse auth redirect
+└── proxy.ts              # Coarse auth redirect
 prisma/
 ├── schema.prisma         # Data model
 └── migrations/           # SQL migrations

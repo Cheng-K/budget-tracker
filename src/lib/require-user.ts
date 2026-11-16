@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 /**
- * The authoritative session check. `middleware.ts` is only a coarse redirect —
+ * The authoritative session check. `proxy.ts` is only a coarse redirect —
  * every server action and every data-loading function must call this.
  */
 export async function requireUser() {
