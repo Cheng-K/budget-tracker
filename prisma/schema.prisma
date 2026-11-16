@@ -1,0 +1,226 @@
+// Budget / Expense Tracker — Prisma schema
+// Amounts: Decimal(19,4) — 4 dp covers 3-decimal currencies (e.g. KWD).
+// Amounts are stored POSITIVE; sign comes from `type`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Direct (non-pooled) connection for `prisma migrate deploy` — PgBouncer
+  // transaction pooling (e.g. Neon's -pooler host) breaks the migration engine.
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Auth.js (NextAuth v5) stock models ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  // App fields
+  currencyCode String? // null => onboarding incomplete
+  timezone     String  @default("UTC") // IANA, e.g. "Asia/Tokyo"
+
+  accounts           Account[]
+  sessions           Session[]
+  categories         Category[]
+  budgets            Budget[]
+  transactions       Transaction[]
+  receipts           Receipt[]
+  recurringTemplates RecurringTemplate[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Domain models ----------
+
+enum CategoryKind {
+  EXPENSE
+  INCOME
+}
+
+/// Per-user copy of a category. Seeded at signup, then fully editable.
+/// Hard-delete is only allowed when no transactions reference it; otherwise hide.
+model Category {
+  id        String       @id @default(cuid())
+  userId    String
+  name      String
+  kind      CategoryKind
+  icon      String?
+  sortOrder Int          @default(0)
+  isHidden  Boolean      @default(false)
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgets            Budget[]
+  transactions       Transaction[]
+  recurringTemplates RecurringTemplate[]
+
+  @@unique([userId, name])
+  @@index([userId, sortOrder])
+}
+
+/// `month` is always the 1st of the month (date-only).
+model Budget {
+  id          String   @id @default(cuid())
+  userId      String
+  categoryId  String
+  month       DateTime @db.Date
+  limitAmount Decimal  @db.Decimal(19, 4)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month])
+  @@index([userId, month])
+}
+
+enum TransactionType {
+  EXPENSE
+  INCOME
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  DIGITAL_WALLET
+  OTHER
+}
+
+model Transaction {
+  id            String          @id @default(cuid())
+  userId        String
+  categoryId    String
+  type          TransactionType
+  /// Always positive. Sign is given by `type`.
+  amount        Decimal         @db.Decimal(19, 4)
+  /// Snapshot of the user's currency at write time.
+  currencyCode  String
+  /// Calendar date, not a timestamp.
+  date          DateTime        @db.Date
+  note          String?
+  paymentMethod PaymentMethod   @default(OTHER)
+  locationLabel String?
+  lat           Decimal?        @db.Decimal(9, 6)
+  lng           Decimal?        @db.Decimal(9, 6)
+
+  /// Set when this transaction was materialized from a recurring template.
+  recurringTemplateId String?
+  occurrenceDate      DateTime? @db.Date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category            Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  receipt             Receipt?
+  recurringTemplate   RecurringTemplate?   @relation(fields: [recurringTemplateId], references: [id], onDelete: SetNull)
+  recurringOccurrence RecurringOccurrence?
+
+  @@index([userId, date])
+  @@index([userId, categoryId, date])
+  @@index([userId, type, date])
+  @@index([recurringTemplateId, occurrenceDate])
+}
+
+/// Receipt image stored in S3-compatible storage (MinIO).
+/// Created before the transaction (presign flow), so `transactionId` starts null.
+model Receipt {
+  id            String   @id @default(cuid())
+  userId        String
+  transactionId String?  @unique
+  objectKey     String
+  mimeType      String
+  sizeBytes     Int
+  uploadedAt    DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum RecurringFrequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model RecurringTemplate {
+  id            String             @id @default(cuid())
+  userId        String
+  categoryId    String
+  type          TransactionType
+  amount        Decimal            @db.Decimal(19, 4)
+  currencyCode  String
+  frequency     RecurringFrequency
+  /// First occurrence date (calendar date).
+  startDate     DateTime           @db.Date
+  /// Optional last occurrence date (inclusive).
+  endDate       DateTime?          @db.Date
+  note          String?
+  paymentMethod PaymentMethod      @default(OTHER)
+  isActive      Boolean            @default(true)
+
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  occurrences  RecurringOccurrence[]
+  transactions Transaction[]
+
+  @@index([userId, isActive])
+}
+
+/// Idempotency ledger for recurring materialization.
+/// The unique (templateId, occurrenceDate) constraint is what makes
+/// materialization safe to run repeatedly.
+model RecurringOccurrence {
+  id             String   @id @default(cuid())
+  templateId     String
+  occurrenceDate DateTime @db.Date
+  transactionId  String?  @unique
+
+  template    RecurringTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  transaction Transaction?      @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@unique([templateId, occurrenceDate])
+}

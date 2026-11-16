@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: budget
+      POSTGRES_PASSWORD: budget
+      POSTGRES_DB: budget
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budget -d budget"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # S3-compatible object store for receipt images.
+  # Adobe S3Mock — accepts any credentials, supports the S3 API surface we need.
+  s3:
+    image: adobe/s3mock:latest
+    environment:
+      initialBuckets: receipts
+      rootDirectory: /tmp/s3mock
+    ports:
+      - "9090:9090"
+    volumes:
+      - s3data:/tmp/s3mock
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      s3:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+      DIRECT_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+      # Internal: how the Next.js server talks to the object store (Docker network).
+      S3_ENDPOINT: http://s3:9090
+      # Public: how the BROWSER reaches it — presigned URLs are minted against this.
+      S3_PUBLIC_ENDPOINT: ${S3_PUBLIC_ENDPOINT:-http://localhost:9090}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+
+  # Background worker: recurring-transaction sweep (same image, different command).
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+      DIRECT_URL: postgresql://budget:budget@postgres:5432/budget?schema=public
+    command: npx tsx src/jobs/recurring-sweep.ts
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  s3data:
