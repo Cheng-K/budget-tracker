@@ -6,6 +6,7 @@ import {
   updateTransactionAction,
 } from "@/lib/actions/transactions";
 import { ReceiptUpload } from "@/components/receipt-upload";
+import { AmountInput } from "@/components/amount-input";
 import type { Category, Transaction } from "@prisma/client";
 
 interface TransactionFormProps {
@@ -93,22 +94,14 @@ export function TransactionForm({
       <input type="hidden" name="type" value={type} />
 
       {/* Amount */}
-      <div>
-        <label htmlFor="amount" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Amount ({defaultCurrency})
-        </label>
-        <input
-          id="amount"
-          name="amount"
-          type="text"
-          inputMode="decimal"
-          placeholder="0.00"
-          defaultValue={transaction ? String(transaction.amount) : ""}
-          required
-          autoFocus
-          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-lg font-semibold focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-        />
-      </div>
+      <AmountInput
+        name="amount"
+        label={`Amount (${defaultCurrency})`}
+        currency={defaultCurrency}
+        defaultValue={transaction ? String(transaction.amount) : ""}
+        required
+        autoFocus
+      />
 
       {/* Category */}
       <div>

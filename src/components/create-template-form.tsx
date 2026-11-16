@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import type { Category } from "@prisma/client";
 import { createTemplateAction } from "@/lib/actions/recurring";
+import { AmountInput } from "@/components/amount-input";
 
 export function CreateTemplateForm({
   categories,
@@ -76,17 +77,12 @@ export function CreateTemplateForm({
         <input type="hidden" name="type" value={type} />
 
         {/* Amount */}
-        <div>
-          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Amount ({currency})</label>
-          <input
-            name="amount"
-            type="text"
-            inputMode="decimal"
-            placeholder="0.00"
-            required
-            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          />
-        </div>
+        <AmountInput
+          name="amount"
+          label={`Amount (${currency})`}
+          currency={currency}
+          required
+        />
 
         {/* Category */}
         <div>
