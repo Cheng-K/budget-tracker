@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/require-user";
-import { AddFab, BottomNav } from "@/components/bottom-nav";
+import { BottomNav } from "@/components/bottom-nav";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -29,10 +29,19 @@ export default async function AppLayout({
           </Link>
           <div className="flex items-center gap-1">
             <ThemeToggle />
+            <a
+              href="https://forms.gle/V1ZiLNXJffUDenLj8"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Share feedback"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+            >
+              <FeedbackIcon />
+            </a>
             <Link
               href="/settings"
               aria-label="Settings"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 transition hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:text-neutral-100 dark:text-neutral-400 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
             >
               <SettingsIcon />
             </Link>
@@ -43,9 +52,26 @@ export default async function AppLayout({
 
       <main className="mx-auto max-w-lg px-4 pb-32 pt-6">{children}</main>
 
-      <AddFab />
       <BottomNav />
     </div>
+  );
+}
+
+function FeedbackIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
   );
 }
 

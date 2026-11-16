@@ -11,7 +11,7 @@ export function SignOutButton() {
       <button
         type="submit"
         aria-label="Sign out"
-        className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 transition hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:text-neutral-100 dark:text-neutral-400 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+        className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
       >
         <svg
           width="20"

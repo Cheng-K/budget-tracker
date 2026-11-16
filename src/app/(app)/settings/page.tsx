@@ -42,6 +42,44 @@ export default async function SettingsPage() {
         </p>
         <CategoryManager categories={categories} />
       </section>
+
+      {/* Feedback */}
+      <section>
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Feedback</h2>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          Help us improve Budget Tracker. Tell us what&apos;s working, what&apos;s
+          confusing, and what&apos;s missing.
+        </p>
+        <a
+          href="https://forms.gle/V1ZiLNXJffUDenLj8"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          Share feedback
+          <ExternalLinkIcon />
+        </a>
+      </section>
     </div>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+    </svg>
   );
 }
