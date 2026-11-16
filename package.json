@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run infra && npm run db:migrate && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "infra": "docker compose up -d --wait postgres s3",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

@@ -27,7 +27,7 @@ services:
     volumes:
       - s3data:/tmp/s3mock
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/"]
       interval: 5s
       timeout: 5s
       retries: 20
