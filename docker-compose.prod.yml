@@ -1,0 +1,13 @@
+# Production overrides — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Keeps Postgres and the S3 store unreachable from the public internet.
+# The Next.js app reaches them over the internal Docker network; the browser
+# reaches S3 only through the Caddy reverse proxy (see docs/deploy-vps.md).
+
+services:
+  postgres:
+    ports: []
+
+  s3:
+    ports: []
