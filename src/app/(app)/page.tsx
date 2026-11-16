@@ -123,12 +123,12 @@ export default async function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <ul className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+          <ul className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900">
             {recent.map((t) => (
               <li key={t.id}>
                 <Link
                   href={`/transactions/${t.id}`}
-                  className="flex items-center justify-between px-4 py-3 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
+                  className="flex items-center justify-between px-4 py-3 transition hover:bg-neutral-50 dark:hover:bg-neutral-800"
                 >
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{t.category.name}</span>
