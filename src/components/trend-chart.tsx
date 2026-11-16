@@ -84,19 +84,19 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
             tickLine={false}
             axisLine={{ stroke: "var(--border)" }}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))}
           />
           <Tooltip content={<ChartTooltip />} />
           <Legend
-            wrapperStyle={{ fontSize: "11px" }}
+            wrapperStyle={{ fontSize: "12px" }}
             formatter={(value) => LABELS[String(value)] ?? String(value)}
           />
           <Bar dataKey="income" fill="#10b981" radius={[2, 2, 0, 0]} />

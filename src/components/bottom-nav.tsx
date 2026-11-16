@@ -34,14 +34,14 @@ export function BottomNav() {
                   >
                     <PlusIcon className="h-7 w-7" />
                   </Link>
-                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="text-[12px] font-medium text-emerald-600 dark:text-emerald-400">
                     Add
                   </span>
                 </div>
               )}
               <Link
                 href={href}
-                className={`flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition ${
+                className={`flex flex-col items-center justify-center gap-1 text-[12px] font-medium transition ${
                   active
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"

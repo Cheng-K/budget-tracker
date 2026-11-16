@@ -37,19 +37,19 @@ export default async function ReportsPage({
         <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{monthLabel}</h2>
         <div className="mt-3 grid grid-cols-3 gap-2">
           <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Income</p>
+            <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Income</p>
             <p className="mt-1 text-sm font-semibold text-emerald-600">
               {formatMoney(summary.totalIncome, currency)}
             </p>
           </div>
           <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Expenses</p>
+            <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Expenses</p>
             <p className="mt-1 text-sm font-semibold text-red-600">
               {formatMoney(summary.totalExpenses, currency)}
             </p>
           </div>
           <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Net</p>
+            <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Net</p>
             <p className={`mt-1 text-sm font-semibold ${parseFloat(summary.net) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
               {formatMoney(summary.net, currency)}
             </p>
