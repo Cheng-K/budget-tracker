@@ -16,7 +16,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
     >
       <div className="mx-auto grid h-16 max-w-lg grid-cols-4">
         {TABS.map(({ href, label, icon: Icon }) => {
@@ -27,7 +27,9 @@ export function BottomNav() {
               key={href}
               href={href}
               className={`flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition ${
-                active ? "text-emerald-600" : "text-neutral-500 hover:text-neutral-900"
+                active
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:text-neutral-100 dark:text-neutral-400 dark:text-neutral-500 dark:hover:text-neutral-100"
               }`}
               aria-current={active ? "page" : undefined}
             >
@@ -46,7 +48,7 @@ export function AddFab() {
     <Link
       href="/transactions/new"
       aria-label="Add transaction"
-      className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-700 active:scale-95"
+      className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-700 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-600"
     >
       <PlusIcon className="h-7 w-7" />
     </Link>

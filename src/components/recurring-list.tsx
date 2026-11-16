@@ -26,8 +26,8 @@ export function RecurringList({
 
   if (templates.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center">
-        <p className="text-sm text-neutral-500">No recurring transactions yet.</p>
+      <div className="rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-8 text-center">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">No recurring transactions yet.</p>
       </div>
     );
   }
@@ -35,11 +35,11 @@ export function RecurringList({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-neutral-700">Templates</h2>
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Templates</h2>
         <button
           onClick={() => startTransition(() => materializeNowAction())}
           disabled={isPending}
-          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-60"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-300 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800 disabled:opacity-60"
         >
           {isPending ? "Running…" : "Run due now"}
         </button>
@@ -52,18 +52,18 @@ export function RecurringList({
         return (
           <div
             key={t.id}
-            className={`rounded-xl border border-neutral-200 bg-white p-4 ${!t.isActive ? "opacity-60" : ""}`}
+            className={`rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4 ${!t.isActive ? "opacity-60" : ""}`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-sm font-medium">{t.category.name}</span>
-                <span className="ml-2 text-xs text-neutral-400">
+                <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
                   {t.frequency.toLowerCase()}
                 </span>
               </div>
               <span
                 className={`text-sm font-medium ${
-                  t.type === "INCOME" ? "text-emerald-600" : "text-neutral-900"
+                  t.type === "INCOME" ? "text-emerald-600" : "text-neutral-900 dark:text-neutral-100"
                 }`}
               >
                 {t.type === "INCOME" ? "+" : "−"}
@@ -72,18 +72,18 @@ export function RecurringList({
             </div>
 
             {t.note && (
-              <p className="mt-1 text-xs text-neutral-500">{t.note}</p>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{t.note}</p>
             )}
 
             <div className="mt-2 flex items-center justify-between">
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                 {nextDate ? (
                   <span>Next: {format(nextDate, "MMM d, yyyy")}</span>
                 ) : (
-                  <span className="text-neutral-400">Ended</span>
+                  <span className="text-neutral-400 dark:text-neutral-500">Ended</span>
                 )}
                 {lastOcc?.transaction && (
-                  <span className="ml-2 text-neutral-400">
+                  <span className="ml-2 text-neutral-400 dark:text-neutral-500">
                     Last: {format(lastOcc.occurrenceDate, "MMM d")}
                   </span>
                 )}
@@ -98,7 +98,7 @@ export function RecurringList({
                   className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                     t.isActive
                       ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                      : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                      : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200"
                   }`}
                 >
                   {t.isActive ? "Active" : "Paused"}
@@ -110,7 +110,7 @@ export function RecurringList({
                     }
                   }}
                   disabled={isPending}
-                  className="rounded-lg p-1.5 text-neutral-400 transition hover:bg-red-50 hover:text-red-600"
+                  className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
                 >
                   <TrashIcon />
                 </button>

@@ -52,7 +52,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   return (
     <div className="mt-3 flex flex-col gap-6">
       {error && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
@@ -76,20 +76,20 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
       />
 
       {/* Add new */}
-      <form action={handleCreate} className="rounded-xl border border-neutral-200 bg-white p-4">
-        <h3 className="text-sm font-medium text-neutral-700">Add category</h3>
+      <form action={handleCreate} className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4">
+        <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Add category</h3>
         <div className="mt-3 flex gap-2">
           <input
             name="name"
             placeholder="Category name"
             required
             maxLength={50}
-            className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
           <select
             name="kind"
             defaultValue="EXPENSE"
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           >
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
@@ -124,10 +124,10 @@ function CategoryGroup({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400">
+      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
         {title}
       </h3>
-      <ul className="divide-y divide-neutral-100 rounded-xl border border-neutral-200 bg-white">
+      <ul className="divide-y divide-neutral-100 dark:divide-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         {categories.map((c) => (
           <li key={c.id} className={`flex items-center gap-2 px-4 py-2.5 ${c.isHidden ? "opacity-50" : ""}`}>
             <input
@@ -142,13 +142,13 @@ function CategoryGroup({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className="min-w-0 flex-1 rounded-lg border border-transparent px-2 py-1.5 text-sm font-medium hover:border-neutral-200 focus:border-emerald-500 focus:outline-none"
+              className="min-w-0 flex-1 rounded-lg border border-transparent px-2 py-1.5 text-sm font-medium hover:border-neutral-200 dark:border-neutral-800 focus:border-emerald-500 focus:outline-none"
             />
             <button
               onClick={() => onToggleHidden(c.id, !c.isHidden)}
               disabled={isPending}
               title={c.isHidden ? "Show" : "Hide"}
-              className="rounded-lg p-1.5 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-600"
+              className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-500 transition hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-800 hover:text-neutral-600 dark:text-neutral-300"
             >
               {c.isHidden ? (
                 <EyeOffIcon />
@@ -160,7 +160,7 @@ function CategoryGroup({
               onClick={() => onDelete(c.id)}
               disabled={isPending}
               title="Delete"
-              className="rounded-lg p-1.5 text-neutral-400 transition hover:bg-red-50 hover:text-red-600"
+              className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
             >
               <TrashIcon />
             </button>

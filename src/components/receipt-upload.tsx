@@ -58,8 +58,8 @@ export function ReceiptUpload({ currentReceiptId, onUploaded }: ReceiptUploadPro
 
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-700">
-        Receipt <span className="text-neutral-400">(optional)</span>
+      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        Receipt <span className="text-neutral-400 dark:text-neutral-500">(optional)</span>
       </label>
 
       {preview ? (
@@ -68,7 +68,7 @@ export function ReceiptUpload({ currentReceiptId, onUploaded }: ReceiptUploadPro
           <img
             src={preview}
             alt="Receipt preview"
-            className="h-20 w-20 rounded-lg border border-neutral-200 object-cover"
+            className="h-20 w-20 rounded-lg border border-neutral-200 dark:border-neutral-800 object-cover"
           />
           <button
             type="button"
@@ -90,10 +90,10 @@ export function ReceiptUpload({ currentReceiptId, onUploaded }: ReceiptUploadPro
             accept="image/jpeg,image/png,image/webp"
             onChange={handleFile}
             disabled={uploading}
-            className="block w-full text-sm text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+            className="block w-full text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
           />
           {uploading && (
-            <p className="mt-1 text-xs text-neutral-500">Uploading…</p>
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Uploading…</p>
           )}
         </div>
       )}

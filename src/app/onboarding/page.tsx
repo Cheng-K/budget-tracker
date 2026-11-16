@@ -26,7 +26,7 @@ export default async function OnboardingPage() {
         <h1 className="text-2xl font-semibold tracking-tight">
           Choose your currency
         </h1>
-        <p className="max-w-sm text-sm text-neutral-500">
+        <p className="max-w-sm text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
           This sets how amounts are displayed across the app. You can change it
           later in Settings until you add your first transaction.
         </p>
@@ -36,7 +36,7 @@ export default async function OnboardingPage() {
         <ul className="grid grid-cols-2 gap-2">
           {CURRENCIES.map((c) => (
             <li key={c.code}>
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-3 transition hover:border-emerald-500 hover:bg-emerald-50 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50">
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3 transition hover:border-emerald-500 hover:bg-emerald-50 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:has-[:checked]:bg-neutral-700">
                 <input
                   type="radio"
                   name="currencyCode"
@@ -47,7 +47,7 @@ export default async function OnboardingPage() {
                 <span className="w-8 text-center text-lg">{c.symbol}</span>
                 <span className="flex flex-col">
                   <span className="text-sm font-medium">{c.code}</span>
-                  <span className="text-xs text-neutral-500">{c.name}</span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{c.name}</span>
                 </span>
               </label>
             </li>

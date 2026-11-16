@@ -36,14 +36,14 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
             const timeout = setTimeout(() => updateParam("q", val), 300);
             return () => clearTimeout(timeout);
           }}
-          className="flex-1 rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="flex-1 rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
             hasFilters
               ? "border-emerald-600 bg-emerald-50 text-emerald-700"
-              : "border-neutral-300 text-neutral-600 hover:bg-neutral-50"
+              : "border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
           }`}
         >
           Filters
@@ -51,14 +51,14 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
       </div>
 
       {showFilters && (
-        <div className="rounded-xl border border-neutral-200 bg-white p-4">
+        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-neutral-500">Type</label>
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Type</label>
               <select
                 defaultValue={searchParams.get("type") ?? ""}
                 onChange={(e) => updateParam("type", e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
               >
                 <option value="">All</option>
                 <option value="EXPENSE">Expense</option>
@@ -66,11 +66,11 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-500">Category</label>
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Category</label>
               <select
                 defaultValue={searchParams.get("categoryId") ?? ""}
                 onChange={(e) => updateParam("categoryId", e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
               >
                 <option value="">All</option>
                 {categories.map((c) => (
@@ -81,23 +81,23 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-500">Min amount</label>
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Min amount</label>
               <input
                 type="number"
                 placeholder="0"
                 defaultValue={searchParams.get("amountMin") ?? ""}
                 onChange={(e) => updateParam("amountMin", e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-500">Max amount</label>
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Max amount</label>
               <input
                 type="number"
                 placeholder="∞"
                 defaultValue={searchParams.get("amountMax") ?? ""}
                 onChange={(e) => updateParam("amountMax", e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
               />
             </div>
           </div>

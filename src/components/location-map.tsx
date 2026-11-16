@@ -56,7 +56,7 @@ export function LocationMap({ lat, lng, label }: MapProps) {
   return (
     <div
       ref={mapRef}
-      className="h-48 w-full rounded-xl border border-neutral-200"
+      className="h-48 w-full rounded-xl border border-neutral-200 dark:border-neutral-800"
       style={{ zIndex: 0 }}
     />
   );

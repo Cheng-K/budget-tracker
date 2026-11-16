@@ -18,7 +18,7 @@ export default async function LoginPage({
           $
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">Budget Tracker</h1>
-        <p className="max-w-xs text-sm text-neutral-500">
+        <p className="max-w-xs text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
           Track spending, set monthly budgets, and see where your money goes.
         </p>
       </div>
@@ -26,7 +26,7 @@ export default async function LoginPage({
       {error && (
         <p
           role="alert"
-          className="w-full max-w-xs rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="w-full max-w-xs rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
         >
           Sign-in failed. Please try again.
         </p>
@@ -41,7 +41,7 @@ export default async function LoginPage({
         >
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white px-4 py-3 text-sm font-medium text-neutral-900 dark:text-neutral-100 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800 active:scale-[0.99] dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
           >
             <GoogleIcon />
             Continue with Google
@@ -56,7 +56,7 @@ export default async function LoginPage({
         >
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-neutral-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-neutral-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 active:scale-[0.99] dark:bg-white dark:text-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-200"
           >
             <GitHubIcon />
             Continue with GitHub
@@ -64,7 +64,7 @@ export default async function LoginPage({
         </form>
       </div>
 
-      <p className="max-w-xs text-center text-xs text-neutral-400">
+      <p className="max-w-xs text-center text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
         By continuing you agree to keep your financial data to yourself. We never
         share your data.
       </p>

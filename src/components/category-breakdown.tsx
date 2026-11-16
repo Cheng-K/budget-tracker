@@ -19,8 +19,8 @@ export function CategoryBreakdown({
 }) {
   if (items.length === 0) {
     return (
-      <div className="mt-3 rounded-xl border border-dashed border-neutral-300 bg-white p-6 text-center">
-        <p className="text-sm text-neutral-500">No expenses this month.</p>
+      <div className="mt-3 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-6 text-center">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">No expenses this month.</p>
       </div>
     );
   }
@@ -35,22 +35,22 @@ export function CategoryBreakdown({
         const barPct = maxAmount > 0 ? (parseFloat(item.amount) / maxAmount) * 100 : 0;
 
         return (
-          <div key={item.categoryId} className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
+          <div key={item.categoryId} className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-4 py-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">{item.name}</span>
               <span className="text-sm">
                 <span className="font-medium">{formatMoney(item.amount, currency)}</span>
-                <span className="ml-1 text-xs text-neutral-400">{pct.toFixed(0)}%</span>
+                <span className="ml-1 text-xs text-neutral-400 dark:text-neutral-500">{pct.toFixed(0)}%</span>
               </span>
             </div>
-            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
               <div
                 className="h-full rounded-full bg-emerald-500"
                 style={{ width: `${barPct}%` }}
               />
             </div>
             {item.budget && (
-              <p className="mt-1 text-xs text-neutral-400">
+              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
                 Budget: {formatMoney(item.budget, currency)}
                 {parseFloat(item.amount) > parseFloat(item.budget) && (
                   <span className="ml-1 text-red-500">

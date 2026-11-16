@@ -36,7 +36,7 @@ export function CreateTemplateForm({
     return (
       <button
         onClick={() => setShowForm(true)}
-        className="rounded-xl border border-dashed border-neutral-300 bg-white px-4 py-4 text-sm font-medium text-neutral-600 transition hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700"
+        className="rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-white dark:border-neutral-700 dark:bg-neutral-900 px-4 py-4 text-sm font-medium text-neutral-600 dark:text-neutral-300 transition hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700"
       >
         + Add recurring transaction
       </button>
@@ -44,11 +44,11 @@ export function CreateTemplateForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-neutral-200 bg-white p-4">
-      <h2 className="text-sm font-medium text-neutral-700">New recurring transaction</h2>
+    <form onSubmit={handleSubmit} className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4">
+      <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">New recurring transaction</h2>
 
       {error && (
-        <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
@@ -66,7 +66,7 @@ export function CreateTemplateForm({
                   ? t === "INCOME"
                     ? "bg-emerald-600 text-white"
                     : "bg-red-600 text-white"
-                  : "border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+                  : "border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
               }`}
             >
               {t === "EXPENSE" ? "Expense" : "Income"}
@@ -77,24 +77,24 @@ export function CreateTemplateForm({
 
         {/* Amount */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500">Amount ({currency})</label>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Amount ({currency})</label>
           <input
             name="amount"
             type="text"
             inputMode="decimal"
             placeholder="0.00"
             required
-            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
         </div>
 
         {/* Category */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500">Category</label>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Category</label>
           <select
             name="categoryId"
             required
-            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           >
             <option value="" disabled>Select</option>
             {filteredCategories.map((c) => (
@@ -106,11 +106,11 @@ export function CreateTemplateForm({
         {/* Frequency + Date */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-xs font-medium text-neutral-500">Frequency</label>
+            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Frequency</label>
             <select
               name="frequency"
               defaultValue="MONTHLY"
-              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
             >
               <option value="WEEKLY">Weekly</option>
               <option value="MONTHLY">Monthly</option>
@@ -118,47 +118,47 @@ export function CreateTemplateForm({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-neutral-500">Start date</label>
+            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Start date</label>
             <input
               name="startDate"
               type="date"
               required
               defaultValue={new Date().toISOString().slice(0, 10)}
-              className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
             />
           </div>
         </div>
 
         {/* End date */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500">
-            End date <span className="text-neutral-400">(optional)</span>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+            End date <span className="text-neutral-400 dark:text-neutral-500">(optional)</span>
           </label>
           <input
             name="endDate"
             type="date"
-            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           />
         </div>
 
         {/* Note */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500">Note</label>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Note</label>
           <input
             name="note"
             type="text"
             placeholder="e.g. Netflix subscription"
-            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           />
         </div>
 
         {/* Payment method */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500">Payment method</label>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Payment method</label>
           <select
             name="paymentMethod"
             defaultValue="OTHER"
-            className="mt-1 block w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           >
             <option value="CASH">Cash</option>
             <option value="CREDIT_CARD">Credit Card</option>
@@ -180,7 +180,7 @@ export function CreateTemplateForm({
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="rounded-lg border border-neutral-300 px-4 py-2.5 text-sm text-neutral-600 transition hover:bg-neutral-50"
+            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-sm text-neutral-600 dark:text-neutral-300 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
           >
             Cancel
           </button>

@@ -14,20 +14,20 @@ export default async function SettingsPage() {
 
       {/* Profile */}
       <section>
-        <h2 className="text-sm font-medium text-neutral-700">Profile</h2>
-        <dl className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-200 bg-white">
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Profile</h2>
+        <dl className="mt-3 divide-y divide-neutral-100 dark:divide-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900">
           <div className="flex items-center justify-between px-4 py-3">
-            <dt className="text-sm text-neutral-500">Email</dt>
+            <dt className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Email</dt>
             <dd className="text-sm font-medium">{user.email}</dd>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
-            <dt className="text-sm text-neutral-500">Currency</dt>
+            <dt className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Currency</dt>
             <dd className="text-sm font-medium">
               {currency ? `${currency.symbol} ${currency.code}` : user.currencyCode}
             </dd>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
-            <dt className="text-sm text-neutral-500">Timezone</dt>
+            <dt className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Timezone</dt>
             <dd className="text-sm font-medium">{user.timezone}</dd>
           </div>
         </dl>
@@ -35,8 +35,8 @@ export default async function SettingsPage() {
 
       {/* Categories */}
       <section>
-        <h2 className="text-sm font-medium text-neutral-700">Categories</h2>
-        <p className="mt-1 text-xs text-neutral-500">
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Categories</h2>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
           Rename, hide, or delete categories you don&apos;t use. Categories with
           transactions can be hidden but not deleted.
         </p>

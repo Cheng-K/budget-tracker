@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/require-user";
 import { AddFab, BottomNav } from "@/components/bottom-nav";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function AppLayout({
   children,
@@ -15,8 +16,8 @@ export default async function AppLayout({
   if (!user.currencyCode) redirect("/onboarding");
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
+    <div className="min-h-dvh bg-neutral-50 dark:bg-neutral-950">
+      <header className="sticky top-0 z-30 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900/95 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-sm font-bold text-white">
@@ -26,11 +27,12 @@ export default async function AppLayout({
               Budget Tracker
             </span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
             <Link
               href="/settings"
               aria-label="Settings"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 transition hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:text-neutral-100 dark:text-neutral-400 dark:text-neutral-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
             >
               <SettingsIcon />
             </Link>

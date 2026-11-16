@@ -49,14 +49,14 @@ export function BudgetList({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
 
       {summary.length === 0 && unbudgeted.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-300 bg-white p-8 text-center">
-          <p className="text-sm text-neutral-500">No budget categories yet.</p>
+        <div className="rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-8 text-center">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">No budget categories yet.</p>
         </div>
       ) : (
         <>
@@ -77,7 +77,7 @@ export function BudgetList({
 
           {unbudgeted.length > 0 && (
             <div>
-              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400">
+              <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
                 Set a budget
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -89,7 +89,7 @@ export function BudgetList({
                       if (limit) handleSetBudget(c.id, limit);
                     }}
                     disabled={isPending}
-                    className="rounded-full border border-neutral-300 px-4 py-2 text-sm text-neutral-600 transition hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700"
+                    className="rounded-full border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300 transition hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     + {c.name}
                   </button>
@@ -123,14 +123,14 @@ function BudgetRow({
       : "bg-emerald-500";
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{item.categoryName}</span>
         <span className="text-sm">
-          <span className={item.isOver ? "font-semibold text-red-600" : "text-neutral-900"}>
+          <span className={item.isOver ? "font-semibold text-red-600" : "text-neutral-900 dark:text-neutral-100"}>
             {formatMoney(item.spentAmount, currency)}
           </span>
-          <span className="text-neutral-400">
+          <span className="text-neutral-400 dark:text-neutral-500">
             {" / "}
             {formatMoney(item.limitAmount, currency)}
           </span>
@@ -138,7 +138,7 @@ function BudgetRow({
       </div>
 
       {/* Progress bar */}
-      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
         <div
           className={`h-full rounded-full transition-all ${barColor}`}
           style={{ width: `${Math.min(item.percentage, 100)}%` }}
@@ -146,7 +146,7 @@ function BudgetRow({
       </div>
 
       <div className="mt-2 flex items-center justify-between">
-        <span className={`text-xs ${item.isOver ? "text-red-600" : "text-neutral-500"}`}>
+        <span className={`text-xs ${item.isOver ? "text-red-600" : "text-neutral-500 dark:text-neutral-400 dark:text-neutral-500"}`}>
           {item.isOver
             ? `Over by ${formatMoney((parseFloat(item.spentAmount) - parseFloat(item.limitAmount)).toFixed(2), currency)}`
             : `${item.percentage}% used`}
@@ -170,7 +170,7 @@ function BudgetRow({
               if (confirm("Remove this budget?")) onClear(item.categoryId);
             }}
             disabled={isPending}
-            className="text-xs font-medium text-neutral-400 hover:text-red-600 hover:underline"
+            className="text-xs font-medium text-neutral-400 dark:text-neutral-500 hover:text-red-600 hover:underline"
           >
             Remove
           </button>

@@ -31,7 +31,7 @@ export default async function TransactionDetailPage({
         </span>
       </div>
 
-      <dl className="divide-y divide-neutral-100 rounded-xl border border-neutral-200 bg-white">
+      <dl className="divide-y divide-neutral-100 dark:divide-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         <DetailRow label="Type" value={t.type === "INCOME" ? "Income" : "Expense"} />
         <DetailRow
           label="Date"
@@ -47,19 +47,19 @@ export default async function TransactionDetailPage({
 
       {t.receipt && (
         <div>
-          <h2 className="mb-2 text-sm font-medium text-neutral-700">Receipt</h2>
+          <h2 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">Receipt</h2>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/api/receipts/${t.receipt.id}`}
             alt="Receipt"
-            className="w-full rounded-xl border border-neutral-200 object-cover"
+            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800 object-cover"
           />
         </div>
       )}
 
       {t.lat && t.lng && (
         <div>
-          <h2 className="mb-2 text-sm font-medium text-neutral-700">Map</h2>
+          <h2 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">Map</h2>
           <LocationMap
             lat={parseFloat(String(t.lat))}
             lng={parseFloat(String(t.lng))}
@@ -71,7 +71,7 @@ export default async function TransactionDetailPage({
       <div className="flex gap-3">
         <Link
           href={`/transactions/${t.id}/edit`}
-          className="flex-1 rounded-xl border border-neutral-300 px-4 py-3 text-center text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+          className="flex-1 rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-center text-sm font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
         >
           Edit
         </Link>
@@ -84,8 +84,8 @@ export default async function TransactionDetailPage({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between px-4 py-3">
-      <dt className="text-sm text-neutral-500">{label}</dt>
-      <dd className="text-sm font-medium text-neutral-900">{value}</dd>
+      <dt className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{label}</dt>
+      <dd className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{value}</dd>
     </div>
   );
 }

@@ -66,7 +66,7 @@ export function TransactionForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {error && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
@@ -83,7 +83,7 @@ export function TransactionForm({
                 ? t === "INCOME"
                   ? "bg-emerald-600 text-white"
                   : "bg-red-600 text-white"
-                : "border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                : "border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
             }`}
           >
             {t === "EXPENSE" ? "Expense" : "Income"}
@@ -94,7 +94,7 @@ export function TransactionForm({
 
       {/* Amount */}
       <div>
-        <label htmlFor="amount" className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="amount" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Amount ({defaultCurrency})
         </label>
         <input
@@ -106,13 +106,13 @@ export function TransactionForm({
           defaultValue={transaction ? String(transaction.amount) : ""}
           required
           autoFocus
-          className="mt-1 block w-full rounded-xl border border-neutral-300 px-4 py-3 text-lg font-semibold focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-lg font-semibold focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
       {/* Category */}
       <div>
-        <label htmlFor="categoryId" className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="categoryId" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Category
         </label>
         <select
@@ -120,7 +120,7 @@ export function TransactionForm({
           name="categoryId"
           defaultValue={transaction?.categoryId ?? ""}
           required
-          className="mt-1 block w-full rounded-xl border border-neutral-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         >
           <option value="" disabled>
             Select a category
@@ -135,7 +135,7 @@ export function TransactionForm({
 
       {/* Date */}
       <div>
-        <label htmlFor="date" className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="date" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Date
         </label>
         <input
@@ -144,14 +144,14 @@ export function TransactionForm({
           type="date"
           defaultValue={defaultDate}
           required
-          className="mt-1 block w-full rounded-xl border border-neutral-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
       {/* Note */}
       <div>
-        <label htmlFor="note" className="block text-sm font-medium text-neutral-700">
-          Note / merchant <span className="text-neutral-400">(optional)</span>
+        <label htmlFor="note" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          Note / merchant <span className="text-neutral-400 dark:text-neutral-500">(optional)</span>
         </label>
         <input
           id="note"
@@ -160,20 +160,20 @@ export function TransactionForm({
           placeholder="e.g. Coffee at Starbucks"
           defaultValue={transaction?.note ?? ""}
           maxLength={500}
-          className="mt-1 block w-full rounded-xl border border-neutral-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
       {/* Payment method */}
       <div>
-        <label htmlFor="paymentMethod" className="block text-sm font-medium text-neutral-700">
+        <label htmlFor="paymentMethod" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Payment method
         </label>
         <select
           id="paymentMethod"
           name="paymentMethod"
           defaultValue={transaction?.paymentMethod ?? "OTHER"}
-          className="mt-1 block w-full rounded-xl border border-neutral-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         >
           {PAYMENT_METHODS.map((p) => (
             <option key={p.value} value={p.value}>
@@ -185,8 +185,8 @@ export function TransactionForm({
 
       {/* Location label */}
       <div>
-        <label htmlFor="locationLabel" className="block text-sm font-medium text-neutral-700">
-          Location <span className="text-neutral-400">(optional)</span>
+        <label htmlFor="locationLabel" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          Location <span className="text-neutral-400 dark:text-neutral-500">(optional)</span>
         </label>
         <div className="mt-1 flex gap-2">
           <input
@@ -196,7 +196,7 @@ export function TransactionForm({
             placeholder="e.g. Main Street"
             defaultValue={transaction?.locationLabel ?? ""}
             maxLength={200}
-            className="block flex-1 rounded-xl border border-neutral-300 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="block flex-1 rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
           <button
             type="button"
@@ -213,7 +213,7 @@ export function TransactionForm({
                   "GPS captured ✓";
               });
             }}
-            className="shrink-0 rounded-xl border border-neutral-300 px-4 py-3 text-sm text-neutral-600 transition hover:bg-neutral-50"
+            className="shrink-0 rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-sm text-neutral-600 dark:text-neutral-300 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
           >
             GPS
           </button>

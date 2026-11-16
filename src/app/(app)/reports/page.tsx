@@ -34,22 +34,22 @@ export default async function ReportsPage({
 
       {/* Monthly summary */}
       <section>
-        <h2 className="text-sm font-medium text-neutral-700">{monthLabel}</h2>
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{monthLabel}</h2>
         <div className="mt-3 grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-neutral-200 bg-white px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500">Income</p>
+          <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
+            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Income</p>
             <p className="mt-1 text-sm font-semibold text-emerald-600">
               {formatMoney(summary.totalIncome, currency)}
             </p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500">Expenses</p>
+          <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
+            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Expenses</p>
             <p className="mt-1 text-sm font-semibold text-red-600">
               {formatMoney(summary.totalExpenses, currency)}
             </p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-neutral-500">Net</p>
+          <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
+            <p className="text-[11px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Net</p>
             <p className={`mt-1 text-sm font-semibold ${parseFloat(summary.net) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
               {formatMoney(summary.net, currency)}
             </p>
@@ -59,7 +59,7 @@ export default async function ReportsPage({
 
       {/* Category breakdown */}
       <section>
-        <h2 className="text-sm font-medium text-neutral-700">Spending by category</h2>
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Spending by category</h2>
         <CategoryBreakdown
           items={summary.categoryBreakdown}
           currency={currency}
@@ -69,8 +69,8 @@ export default async function ReportsPage({
 
       {/* Trend chart */}
       <section>
-        <h2 className="text-sm font-medium text-neutral-700">12-month trend</h2>
-        <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4">
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">12-month trend</h2>
+        <div className="mt-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-4">
           <TrendChart data={trend} />
         </div>
       </section>

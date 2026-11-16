@@ -52,7 +52,7 @@ export default async function TransactionsPage({
             ...(filter.type && { type: filter.type }),
             ...(filter.categoryId && { categoryId: filter.categoryId }),
           }).toString()}`}
-          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50"
+          className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-300 transition hover:bg-neutral-50 dark:bg-neutral-950 dark:hover:bg-neutral-800"
         >
           Export CSV
         </Link>
@@ -73,7 +73,7 @@ export default async function TransactionsPage({
         currency={user.currencyCode ?? "USD"}
       />
 
-      <p className="text-center text-xs text-neutral-400">
+      <p className="text-center text-xs text-neutral-400 dark:text-neutral-500">
         Showing {transactions.items.length} of {transactions.total} transactions for {label}
       </p>
     </div>
