@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { startOfMonth, subMonths, format } from "date-fns";
+import { getPrevMonth } from "@/lib/month";
 
 export async function getBudgets(userId: string, month: Date) {
   return prisma.budget.findMany({
@@ -35,7 +35,7 @@ export async function clearBudget(userId: string, categoryId: string, month: Dat
 }
 
 export async function copyLastMonthBudgets(userId: string, month: Date) {
-  const lastMonth = startOfMonth(subMonths(month, 1));
+  const lastMonth = getPrevMonth(month);
   const lastBudgets = await prisma.budget.findMany({
     where: { userId, month: lastMonth },
   });
@@ -56,8 +56,10 @@ export async function copyLastMonthBudgets(userId: string, month: Date) {
 }
 
 export async function getBudgetSummary(userId: string, month: Date) {
-  const monthStart = startOfMonth(month);
-  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+  // month is already the 1st of the month in UTC (from getMonthRange).
+  // Month-end = last day of the same month in UTC.
+  const monthStart = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
+  const monthEnd = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0));
 
   const [budgets, spending] = await Promise.all([
     prisma.budget.findMany({

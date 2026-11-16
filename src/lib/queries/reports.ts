@@ -1,9 +1,18 @@
 import { prisma } from "@/lib/db";
-import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
+import { utcMonthStart, utcMonthEnd, getPrevMonth } from "@/lib/month";
+
+function monthLabel(d: Date): string {
+  return d.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
+}
+
+function monthYearLabel(d: Date): string {
+  return d.toLocaleString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+}
 
 export async function getMonthlySummary(userId: string, month: Date) {
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
+  // month is already the 1st of the month in UTC.
+  const monthStart = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
+  const monthEnd = utcMonthEnd(month.getUTCFullYear(), month.getUTCMonth());
 
   const [incomeAgg, expenseAgg, byCategory, budgets] = await Promise.all([
     prisma.transaction.aggregate({
@@ -71,16 +80,21 @@ export async function getMonthlySummary(userId: string, month: Date) {
 export async function getTrendSeries(userId: string, months: number = 12) {
   const now = new Date();
   const monthsList = Array.from({ length: months }, (_, i) => {
-    const m = subMonths(now, months - 1 - i);
+    // Walk backwards from the current month (UTC).
+    let m = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    for (let j = 0; j < months - 1 - i; j++) {
+      m = getPrevMonth(m);
+    }
     return {
-      month: startOfMonth(m),
-      label: format(m, "MMM"),
-      fullLabel: format(m, "MMM yyyy"),
+      month: m,
+      label: monthLabel(m),
+      fullLabel: monthYearLabel(m),
     };
   });
 
   const startDate = monthsList[0].month;
-  const endDate = endOfMonth(monthsList[monthsList.length - 1].month);
+  const lastMonth = monthsList[monthsList.length - 1].month;
+  const endDate = utcMonthEnd(lastMonth.getUTCFullYear(), lastMonth.getUTCMonth());
 
   const transactions = await prisma.transaction.findMany({
     where: {
@@ -95,8 +109,8 @@ export async function getTrendSeries(userId: string, months: number = 12) {
   });
 
   return monthsList.map(({ month, label, fullLabel }) => {
-    const monthStart = month;
-    const monthEnd = endOfMonth(month);
+    const monthStart = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
+    const monthEnd = utcMonthEnd(month.getUTCFullYear(), month.getUTCMonth());
 
     let income = 0;
     let expenses = 0;

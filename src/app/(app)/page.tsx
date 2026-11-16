@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatMoney } from "@/lib/money";
 import { findCurrency } from "@/lib/currencies";
 import { getBudgetSummary } from "@/lib/queries/budgets";
-import { endOfMonth, startOfMonth } from "date-fns";
+import { utcMonthStart, utcMonthEnd } from "@/lib/month";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -15,8 +15,8 @@ export default async function DashboardPage() {
   };
 
   const now = new Date();
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
+  const monthStart = utcMonthStart(now.getUTCFullYear(), now.getUTCMonth());
+  const monthEnd = utcMonthEnd(now.getUTCFullYear(), now.getUTCMonth());
 
   const [incomeAgg, expenseAgg, recent, budgetSummary] = await Promise.all([
     prisma.transaction.aggregate({
