@@ -3,8 +3,7 @@ import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import { DEFAULT_CATEGORIES } from "@/lib/default-categories";
-import { DEFAULT_PAYMENT_METHODS } from "@/lib/default-payment-methods";
+import { seedUserDefaults } from "@/lib/seed-user";
 
 /**
  * Auth.js v5 config.
@@ -49,26 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   events: {
     async createUser({ user }) {
-      // Seed the per-user default category set on first sign-in.
       if (!user.id) return;
-      await prisma.category.createMany({
-        data: DEFAULT_CATEGORIES.map((c) => ({
-          userId: user.id!,
-          name: c.name,
-          kind: c.kind,
-          icon: c.icon,
-          sortOrder: c.sortOrder,
-        })),
-        skipDuplicates: true,
-      });
-      await prisma.paymentMethod.createMany({
-        data: DEFAULT_PAYMENT_METHODS.map((m) => ({
-          userId: user.id!,
-          name: m.name,
-          sortOrder: m.sortOrder,
-        })),
-        skipDuplicates: true,
-      });
+      await seedUserDefaults(user.id);
     },
   },
 });
