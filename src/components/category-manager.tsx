@@ -84,12 +84,12 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
             placeholder="Category name"
             required
             maxLength={50}
-            className="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+            className="min-w-0 flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           />
           <select
             name="kind"
             defaultValue="EXPENSE"
-            className="rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
+            className="shrink-0 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           >
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
@@ -97,7 +97,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
           >
             Add
           </button>
