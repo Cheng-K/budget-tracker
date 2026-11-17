@@ -29,7 +29,7 @@ export async function listTransactions(
 
   const items = await prisma.transaction.findMany({
     where,
-    include: { category: true, receipt: true },
+    include: { category: true, receipt: true, paymentMethod: true },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     take: filter.limit,
     ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
