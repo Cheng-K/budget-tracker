@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { formatMoney } from "@/lib/money";
-import type { Category, Transaction, Receipt } from "@prisma/client";
+import type { Category, PaymentMethod, Transaction, Receipt } from "@prisma/client";
 
 type TransactionWithRelations = Transaction & {
   category: Category;
+  paymentMethod: PaymentMethod;
   receipt?: Receipt | null;
 };
 
@@ -57,7 +58,7 @@ export function TransactionList({
                       {t.category.name}
                     </span>
                     <span className="truncate text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
-                      {t.note || t.paymentMethod.replace(/_/g, " ").toLowerCase()}
+                      {t.note || t.paymentMethod.name}
                       {t.receipt ? " · 📎" : ""}
                     </span>
                   </div>

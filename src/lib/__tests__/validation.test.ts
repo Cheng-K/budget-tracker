@@ -2,6 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   createTransactionSchema,
   createCategorySchema,
+  createPaymentMethodSchema,
+  updatePaymentMethodSchema,
+  reorderPaymentMethodsSchema,
   setBudgetSchema,
   transactionFilterSchema,
 } from "@/lib/validation";
@@ -13,7 +16,7 @@ describe("createTransactionSchema", () => {
     categoryId: "cat123",
     date: "2026-01-15",
     note: "Coffee",
-    paymentMethod: "CASH",
+    paymentMethodId: "pm_test_1",
   };
 
   it("accepts valid input", () => {
@@ -27,6 +30,7 @@ describe("createTransactionSchema", () => {
       amount: "10",
       categoryId: "cat1",
       date: "2026-01-01",
+      paymentMethodId: "pm_test_1",
     });
     expect(result.success).toBe(true);
   });
@@ -68,6 +72,66 @@ describe("createTransactionSchema", () => {
       ...valid,
       date: "",
     });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty paymentMethodId", () => {
+    const result = createTransactionSchema.safeParse({
+      ...valid,
+      paymentMethodId: "",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("createPaymentMethodSchema", () => {
+  it("accepts valid input", () => {
+    const result = createPaymentMethodSchema.safeParse({ name: "Cash" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty name", () => {
+    const result = createPaymentMethodSchema.safeParse({ name: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects name over 50 chars", () => {
+    const result = createPaymentMethodSchema.safeParse({ name: "x".repeat(51) });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("updatePaymentMethodSchema", () => {
+  it("accepts name-only update", () => {
+    const result = updatePaymentMethodSchema.safeParse({
+      id: "pm1",
+      name: "Petty cash",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts hidden toggle", () => {
+    const result = updatePaymentMethodSchema.safeParse({
+      id: "pm1",
+      isHidden: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty id", () => {
+    const result = updatePaymentMethodSchema.safeParse({ id: "", name: "Cash" });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("reorderPaymentMethodsSchema", () => {
+  it("accepts id list", () => {
+    const result = reorderPaymentMethodsSchema.safeParse({ ids: ["pm1", "pm2"] });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty id list", () => {
+    const result = reorderPaymentMethodsSchema.safeParse({ ids: [] });
     expect(result.success).toBe(false);
   });
 });

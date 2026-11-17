@@ -30,6 +30,7 @@ model User {
   accounts           Account[]
   sessions           Session[]
   categories         Category[]
+  paymentMethods     PaymentMethod[]
   budgets            Budget[]
   transactions       Transaction[]
   receipts           Receipt[]
@@ -118,13 +119,21 @@ enum TransactionType {
   INCOME
 }
 
-enum PaymentMethod {
-  CASH
-  CREDIT_CARD
-  DEBIT_CARD
-  BANK_TRANSFER
-  DIGITAL_WALLET
-  OTHER
+/// Per-user copy of a payment method. Seeded at signup, then fully editable.
+/// Hard-delete is only allowed when nothing references it; otherwise hide.
+model PaymentMethod {
+  id        String  @id @default(cuid())
+  userId    String
+  name      String
+  sortOrder Int     @default(0)
+  isHidden  Boolean @default(false)
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions       Transaction[]
+  recurringTemplates RecurringTemplate[]
+
+  @@unique([userId, name])
+  @@index([userId, sortOrder])
 }
 
 model Transaction {
@@ -139,7 +148,7 @@ model Transaction {
   /// Calendar date, not a timestamp.
   date          DateTime        @db.Date
   note          String?
-  paymentMethod PaymentMethod   @default(OTHER)
+  paymentMethodId String
   locationLabel String?
   lat           Decimal?        @db.Decimal(9, 6)
   lng           Decimal?        @db.Decimal(9, 6)
@@ -153,6 +162,7 @@ model Transaction {
 
   user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   category            Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod       PaymentMethod        @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
   receipt             Receipt?
   recurringTemplate   RecurringTemplate?   @relation(fields: [recurringTemplateId], references: [id], onDelete: SetNull)
   recurringOccurrence RecurringOccurrence?
@@ -199,11 +209,12 @@ model RecurringTemplate {
   /// Optional last occurrence date (inclusive).
   endDate       DateTime?          @db.Date
   note          String?
-  paymentMethod PaymentMethod      @default(OTHER)
+  paymentMethodId String
   isActive      Boolean            @default(true)
 
   user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   category     Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  paymentMethod PaymentMethod        @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
   occurrences  RecurringOccurrence[]
   transactions Transaction[]
 

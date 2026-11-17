@@ -1,11 +1,11 @@
-import { requireUser } from "@/lib/require-user";
+import { requireUserNoGate } from "@/lib/require-user";
 import { prisma } from "@/lib/db";
 import { CURRENCIES } from "@/lib/currencies";
 import { redirect } from "next/navigation";
 
 async function setCurrency(formData: FormData) {
   "use server";
-  const user = await requireUser();
+  const user = await requireUserNoGate();
   const code = String(formData.get("currencyCode") ?? "");
   if (!CURRENCIES.some((c) => c.code === code)) {
     throw new Error("Invalid currency");
@@ -18,7 +18,7 @@ async function setCurrency(formData: FormData) {
 }
 
 export default async function OnboardingPage() {
-  await requireUser();
+  await requireUserNoGate();
 
   return (
     <main className="flex min-h-dvh flex-col items-center gap-8 px-6 py-12">

@@ -112,6 +112,7 @@ export function AmountInput({
           id={id}
           type="text"
           inputMode="decimal"
+          autoComplete="off"
           placeholder={placeholder}
           value={display}
           required={required}
@@ -122,7 +123,7 @@ export function AmountInput({
         />
       </div>
       {/* Hidden field carries the clean decimal string for form submission. */}
-      <input type="hidden" name={name} value={display} />
+      <input type="hidden" name={name} value={display} autoComplete="off" />
     </div>
   );
 }

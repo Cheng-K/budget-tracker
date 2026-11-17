@@ -9,14 +9,14 @@ import { getMonthRange } from "@/lib/month";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { TransactionFilters } from "@/components/transaction-filters";
 import { TransactionList } from "@/components/transaction-list";
+import { ListSkeleton } from "@/components/skeletons";
 
 export default async function TransactionsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const user = await requireUser();
-  const sp = await searchParams;
+  const [user, sp] = await Promise.all([requireUser(), searchParams]);
 
   const single = (v: string | string[] | undefined) =>
     Array.isArray(v) ? v[0] : v;
@@ -35,10 +35,9 @@ export default async function TransactionsPage({
     limit: 50,
   });
 
-  const [transactions, categories] = await Promise.all([
-    listTransactions(user.id, filter),
-    listCategories(user.id),
-  ]);
+  // Started eagerly so it runs in parallel with categories; streamed below.
+  const listPromise = listTransactions(user.id, filter);
+  const categories = await listCategories(user.id);
 
   return (
     <div className="flex flex-col gap-4">
@@ -68,14 +67,37 @@ export default async function TransactionsPage({
         <TransactionFilters categories={categories} />
       </Suspense>
 
+      <Suspense fallback={<ListSkeleton rows={8} />}>
+        <TransactionListSection
+          transactions={listPromise}
+          label={label}
+          currency={user.currencyCode ?? "USD"}
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+async function TransactionListSection({
+  transactions: listPromise,
+  label,
+  currency,
+}: {
+  transactions: ReturnType<typeof listTransactions>;
+  label: string;
+  currency: string;
+}) {
+  const transactions = await listPromise;
+
+  return (
+    <>
       <TransactionList
         items={transactions.items}
-        currency={user.currencyCode ?? "USD"}
+        currency={currency}
       />
-
       <p className="text-center text-xs text-neutral-400 dark:text-neutral-500">
-        Showing {transactions.items.length} of {transactions.total} transactions for {label}
+        Showing {transactions.items.length} transactions for {label}
       </p>
-    </div>
+    </>
   );
 }

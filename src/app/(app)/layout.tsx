@@ -1,20 +1,13 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { requireUser } from "@/lib/require-user";
 import { BottomNav } from "@/components/bottom-nav";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export default async function AppLayout({
+export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireUser();
-
-  // Onboarding gate: no currency yet => pick one first.
-  if (!user.currencyCode) redirect("/onboarding");
-
   return (
     <div className="min-h-dvh bg-neutral-50 dark:bg-neutral-950">
       <header className="sticky top-0 z-30 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900/95 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">

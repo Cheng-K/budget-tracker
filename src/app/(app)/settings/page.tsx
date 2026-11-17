@@ -1,11 +1,16 @@
 import { requireUser } from "@/lib/require-user";
 import { listCategories } from "@/lib/queries/categories";
+import { listPaymentMethods } from "@/lib/queries/payment-methods";
 import { findCurrency } from "@/lib/currencies";
 import { CategoryManager } from "@/components/category-manager";
+import { PaymentMethodManager } from "@/components/payment-method-manager";
 
 export default async function SettingsPage() {
   const user = await requireUser();
-  const categories = await listCategories(user.id, true);
+  const [categories, paymentMethods] = await Promise.all([
+    listCategories(user.id, true),
+    listPaymentMethods(user.id, true),
+  ]);
   const currency = findCurrency(user.currencyCode ?? "USD");
 
   return (
@@ -36,11 +41,21 @@ export default async function SettingsPage() {
       {/* Categories */}
       <section>
         <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Categories</h2>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
-          Rename, hide, or delete categories you don&apos;t use. Categories with
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          Rename, hide, delete, or drag to reorder categories. Categories with
           transactions can be hidden but not deleted.
         </p>
         <CategoryManager categories={categories} />
+      </section>
+
+      {/* Payment methods */}
+      <section>
+        <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Payment methods</h2>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          Rename, hide, delete, or drag to reorder payment methods. Methods with
+          transactions or recurring templates can be hidden but not deleted.
+        </p>
+        <PaymentMethodManager paymentMethods={paymentMethods} />
       </section>
 
       {/* Feedback */}

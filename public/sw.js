@@ -30,6 +30,13 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   if (event.request.url.includes("/api/")) return;
 
+  // Framework-internal traffic (build chunks, RSC navigation payloads)
+  // bypasses the SW — intercepting it only adds latency to every navigation.
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/_next/")) return;
+  if (event.request.headers.get("RSC")) return;
+  if (url.searchParams.has("_rsc")) return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

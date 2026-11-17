@@ -14,28 +14,11 @@ export async function getMonthlySummary(userId: string, month: Date) {
   const monthStart = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
   const monthEnd = utcMonthEnd(month.getUTCFullYear(), month.getUTCMonth());
 
-  const [incomeAgg, expenseAgg, byCategory, budgets] = await Promise.all([
-    prisma.transaction.aggregate({
-      where: {
-        userId,
-        type: "INCOME",
-        date: { gte: monthStart, lte: monthEnd },
-      },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.aggregate({
-      where: {
-        userId,
-        type: "EXPENSE",
-        date: { gte: monthStart, lte: monthEnd },
-      },
-      _sum: { amount: true },
-    }),
+  const [byTypeCategory, budgets, categories] = await Promise.all([
     prisma.transaction.groupBy({
-      by: ["categoryId"],
+      by: ["type", "categoryId"],
       where: {
         userId,
-        type: "EXPENSE",
         date: { gte: monthStart, lte: monthEnd },
       },
       _sum: { amount: true },
@@ -44,35 +27,47 @@ export async function getMonthlySummary(userId: string, month: Date) {
     prisma.budget.findMany({
       where: { userId, month: monthStart },
     }),
+    prisma.category.findMany({
+      where: { userId },
+      select: { id: true, name: true },
+    }),
   ]);
 
-  // Get category names
-  const categoryIds = byCategory.map((c) => c.categoryId);
-  const categories = await prisma.category.findMany({
-    where: { id: { in: categoryIds } },
-    select: { id: true, name: true },
-  });
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
 
   const budgetMap = new Map(budgets.map((b) => [b.categoryId, b.limitAmount.toString()]));
 
-  const categoryBreakdown = byCategory
-    .map((c) => ({
-      categoryId: c.categoryId,
-      name: catMap.get(c.categoryId) ?? "Unknown",
-      amount: c._sum.amount?.toString() ?? "0",
-      count: c._count,
-      budget: budgetMap.get(c.categoryId) ?? null,
+  let income = 0;
+  let expenses = 0;
+  const expenseByCategory = new Map<string, { amount: number; count: number }>();
+
+  for (const row of byTypeCategory) {
+    const amount = parseFloat(row._sum.amount?.toString() ?? "0");
+    if (row.type === "INCOME") {
+      income += amount;
+    } else {
+      expenses += amount;
+      const entry = expenseByCategory.get(row.categoryId) ?? { amount: 0, count: 0 };
+      entry.amount += amount;
+      entry.count += row._count;
+      expenseByCategory.set(row.categoryId, entry);
+    }
+  }
+
+  const categoryBreakdown = [...expenseByCategory.entries()]
+    .map(([categoryId, { amount, count }]) => ({
+      categoryId,
+      name: catMap.get(categoryId) ?? "Unknown",
+      amount: amount.toFixed(2),
+      count,
+      budget: budgetMap.get(categoryId) ?? null,
     }))
     .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
 
   return {
-    totalIncome: incomeAgg._sum.amount?.toString() ?? "0",
-    totalExpenses: expenseAgg._sum.amount?.toString() ?? "0",
-    net: (
-      parseFloat(incomeAgg._sum.amount?.toString() ?? "0") -
-      parseFloat(expenseAgg._sum.amount?.toString() ?? "0")
-    ).toFixed(2),
+    totalIncome: income.toFixed(2),
+    totalExpenses: expenses.toFixed(2),
+    net: (income - expenses).toFixed(2),
     categoryBreakdown,
   };
 }
@@ -96,32 +91,27 @@ export async function getTrendSeries(userId: string, months: number = 12) {
   const lastMonth = monthsList[monthsList.length - 1].month;
   const endDate = utcMonthEnd(lastMonth.getUTCFullYear(), lastMonth.getUTCMonth());
 
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      userId,
-      date: { gte: startDate, lte: endDate },
-    },
-    select: {
-      type: true,
-      amount: true,
-      date: true,
-    },
-  });
+  const rows = await prisma.$queryRaw<{ month: string; type: string; total: string }[]>`
+    SELECT to_char(date_trunc('month', "date"), 'YYYY-MM') AS month,
+           "type"::text AS type,
+           SUM("amount")::text AS total
+    FROM "Transaction"
+    WHERE "userId" = ${userId} AND "date" >= ${startDate} AND "date" <= ${endDate}
+    GROUP BY 1, 2
+  `;
+
+  const byMonth = new Map<string, { income: number; expenses: number }>();
+  for (const row of rows) {
+    const entry = byMonth.get(row.month) ?? { income: 0, expenses: 0 };
+    const amount = parseFloat(row.total);
+    if (row.type === "INCOME") entry.income += amount;
+    else entry.expenses += amount;
+    byMonth.set(row.month, entry);
+  }
 
   return monthsList.map(({ month, label, fullLabel }) => {
-    const monthStart = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1));
-    const monthEnd = utcMonthEnd(month.getUTCFullYear(), month.getUTCMonth());
-
-    let income = 0;
-    let expenses = 0;
-
-    for (const t of transactions) {
-      if (t.date >= monthStart && t.date <= monthEnd) {
-        const amount = parseFloat(t.amount.toString());
-        if (t.type === "INCOME") income += amount;
-        else expenses += amount;
-      }
-    }
+    const key = `${month.getUTCFullYear()}-${String(month.getUTCMonth() + 1).padStart(2, "0")}`;
+    const { income, expenses } = byMonth.get(key) ?? { income: 0, expenses: 0 };
 
     return {
       label,

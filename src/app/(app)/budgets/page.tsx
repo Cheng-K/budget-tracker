@@ -6,27 +6,22 @@ import { getMonthRange } from "@/lib/month";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { BudgetList } from "@/components/budget-list";
 import { CopyLastMonthButton } from "@/components/copy-last-month-button";
+import { ListSkeleton } from "@/components/skeletons";
 
 export default async function BudgetsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const user = await requireUser();
-  const sp = await searchParams;
+  const [user, sp] = await Promise.all([requireUser(), searchParams]);
   const monthParam = Array.isArray(sp.month) ? sp.month[0] : sp.month;
   const { start: monthDate, key: monthKey } = getMonthRange(monthParam);
 
-  const [summary, categories] = await Promise.all([
+  // Started eagerly; streamed into the section below.
+  const dataPromise = Promise.all([
     getBudgetSummary(user.id, monthDate),
     listCategories(user.id),
   ]);
-
-  // Categories with an expense kind that don't have budgets yet.
-  const budgetedIds = new Set(summary.map((s) => s.categoryId));
-  const unbudgeted = categories.filter(
-    (c) => c.kind === "EXPENSE" && !budgetedIds.has(c.id)
-  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,12 +34,40 @@ export default async function BudgetsPage({
         <MonthSwitcher />
       </Suspense>
 
-      <BudgetList
-        summary={summary}
-        unbudgeted={unbudgeted}
-        month={monthKey}
-        currency={user.currencyCode ?? "USD"}
-      />
+      <Suspense fallback={<ListSkeleton rows={5} />}>
+        <BudgetSection
+          data={dataPromise}
+          month={monthKey}
+          currency={user.currencyCode ?? "USD"}
+        />
+      </Suspense>
     </div>
+  );
+}
+
+async function BudgetSection({
+  data,
+  month,
+  currency,
+}: {
+  data: Promise<[Awaited<ReturnType<typeof getBudgetSummary>>, Awaited<ReturnType<typeof listCategories>>]>;
+  month: string;
+  currency: string;
+}) {
+  const [summary, categories] = await data;
+
+  // Categories with an expense kind that don't have budgets yet.
+  const budgetedIds = new Set(summary.map((s) => s.categoryId));
+  const unbudgeted = categories.filter(
+    (c) => c.kind === "EXPENSE" && !budgetedIds.has(c.id)
+  );
+
+  return (
+    <BudgetList
+      summary={summary}
+      unbudgeted={unbudgeted}
+      month={month}
+      currency={currency}
+    />
   );
 }

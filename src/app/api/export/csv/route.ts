@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       for (;;) {
         const batch = await prisma.transaction.findMany({
           where,
-          include: { category: true },
+          include: { category: true, paymentMethod: true },
           orderBy: [{ date: "asc" }, { id: "asc" }],
           take: batchSize,
           ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
                 t.amount.toString(),
                 t.currencyCode,
                 t.note ?? "",
-                t.paymentMethod.toLowerCase().replace(/_/g, " "),
+                t.paymentMethod.name,
                 t.locationLabel ?? "",
                 t.lat ? String(t.lat) : "",
                 t.lng ? String(t.lng) : "",

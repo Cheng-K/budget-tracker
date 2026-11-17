@@ -85,6 +85,7 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
               <input
                 type="number"
                 placeholder="0"
+                autoComplete="off"
                 defaultValue={searchParams.get("amountMin") ?? ""}
                 onChange={(e) => updateParam("amountMin", e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
@@ -95,6 +96,7 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
               <input
                 type="number"
                 placeholder="∞"
+                autoComplete="off"
                 defaultValue={searchParams.get("amountMax") ?? ""}
                 onChange={(e) => updateParam("amountMax", e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
