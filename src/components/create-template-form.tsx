@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { Category } from "@prisma/client";
+import type { Category, PaymentMethod } from "@prisma/client";
 import { createTemplateAction } from "@/lib/actions/recurring";
 import { AmountInput } from "@/components/amount-input";
 
 export function CreateTemplateForm({
   categories,
+  paymentMethods,
   currency,
 }: {
   categories: Category[];
+  paymentMethods: PaymentMethod[];
   currency: string;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -18,6 +20,11 @@ export function CreateTemplateForm({
   const [showForm, setShowForm] = useState(false);
 
   const filteredCategories = categories.filter((c) => c.kind === type);
+  const visiblePaymentMethods = paymentMethods.filter((p) => !p.isHidden);
+  const defaultPaymentMethodId =
+    visiblePaymentMethods.find((p) => p.name === "Other")?.id ??
+    visiblePaymentMethods[0]?.id ??
+    "";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -150,18 +157,17 @@ export function CreateTemplateForm({
 
         {/* Payment method */}
         <div>
-          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Payment method</label>
+          <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400">Payment method</label>
           <select
-            name="paymentMethod"
-            defaultValue="OTHER"
+            name="paymentMethodId"
+            defaultValue={defaultPaymentMethodId}
             className="mt-1 block w-full rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-sm"
           >
-            <option value="CASH">Cash</option>
-            <option value="CREDIT_CARD">Credit Card</option>
-            <option value="DEBIT_CARD">Debit Card</option>
-            <option value="BANK_TRANSFER">Bank Transfer</option>
-            <option value="DIGITAL_WALLET">Digital Wallet</option>
-            <option value="OTHER">Other</option>
+            {visiblePaymentMethods.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
           </select>
         </div>
 

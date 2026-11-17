@@ -4,6 +4,7 @@ import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { DEFAULT_CATEGORIES } from "@/lib/default-categories";
+import { DEFAULT_PAYMENT_METHODS } from "@/lib/default-payment-methods";
 
 /**
  * Auth.js v5 config.
@@ -57,6 +58,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           kind: c.kind,
           icon: c.icon,
           sortOrder: c.sortOrder,
+        })),
+        skipDuplicates: true,
+      });
+      await prisma.paymentMethod.createMany({
+        data: DEFAULT_PAYMENT_METHODS.map((m) => ({
+          userId: user.id!,
+          name: m.name,
+          sortOrder: m.sortOrder,
         })),
         skipDuplicates: true,
       });

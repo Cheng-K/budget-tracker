@@ -7,6 +7,7 @@ import {
   updateTemplate,
   deleteTemplate,
 } from "@/lib/queries/recurring";
+import { getPaymentMethod } from "@/lib/queries/payment-methods";
 import { materializeDueForUser } from "@/lib/recurring";
 
 export async function createTemplateAction(formData: FormData) {
@@ -23,14 +24,23 @@ export async function createTemplateAction(formData: FormData) {
       ? new Date(String(formData.get("endDate")) + "T00:00:00Z")
       : null,
     note: String(formData.get("note") ?? ""),
-    paymentMethod: String(formData.get("paymentMethod") ?? "OTHER") as "CASH" | "CREDIT_CARD" | "DEBIT_CARD" | "BANK_TRANSFER" | "DIGITAL_WALLET" | "OTHER",
+    paymentMethodId: String(formData.get("paymentMethodId") ?? ""),
   };
 
   if (!data.categoryId || !data.amount || isNaN(data.startDate.getTime())) {
     return { error: "Category, amount, and start date are required" };
   }
+  if (!data.paymentMethodId) {
+    return { error: "Payment method is required" };
+  }
 
-  await createTemplate(user.id, user.currencyCode!, data);
+  const paymentMethod = await getPaymentMethod(user.id, data.paymentMethodId);
+  if (!paymentMethod) return { error: "Invalid payment method" };
+
+  await createTemplate(user.id, user.currencyCode!, {
+    ...data,
+    paymentMethodId: paymentMethod.id,
+  });
   revalidatePath("/recurring");
   revalidatePath("/");
 }

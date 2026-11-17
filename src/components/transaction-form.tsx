@@ -7,25 +7,18 @@ import {
 } from "@/lib/actions/transactions";
 import { ReceiptUpload } from "@/components/receipt-upload";
 import { AmountInput } from "@/components/amount-input";
-import type { Category, Transaction } from "@prisma/client";
+import type { Category, PaymentMethod, Transaction } from "@prisma/client";
 
 interface TransactionFormProps {
   categories: Category[];
+  paymentMethods: PaymentMethod[];
   defaultCurrency: string;
   transaction?: Transaction; // present => edit mode
 }
 
-const PAYMENT_METHODS = [
-  { value: "CASH", label: "Cash" },
-  { value: "CREDIT_CARD", label: "Credit Card" },
-  { value: "DEBIT_CARD", label: "Debit Card" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "DIGITAL_WALLET", label: "Digital Wallet" },
-  { value: "OTHER", label: "Other" },
-] as const;
-
 export function TransactionForm({
   categories,
+  paymentMethods,
   defaultCurrency,
   transaction,
 }: TransactionFormProps) {
@@ -37,7 +30,19 @@ export function TransactionForm({
   const [receiptId, setReceiptId] = useState<string>(transaction ? "" : "");
 
   const isEdit = !!transaction;
-  const filteredCategories = categories.filter((c) => c.kind === type);
+  // Hidden rows stay in the option set when they're the current value,
+  // so editing an existing transaction never loses its selection.
+  const filteredCategories = categories.filter(
+    (c) => c.kind === type && (!c.isHidden || c.id === transaction?.categoryId)
+  );
+  const visiblePaymentMethods = paymentMethods.filter(
+    (p) => !p.isHidden || p.id === transaction?.paymentMethodId
+  );
+  const defaultPaymentMethodId =
+    transaction?.paymentMethodId ??
+    visiblePaymentMethods.find((p) => p.name === "Other")?.id ??
+    visiblePaymentMethods[0]?.id ??
+    "";
 
   const today = new Date().toISOString().slice(0, 10);
   const defaultDate = transaction
@@ -159,21 +164,36 @@ export function TransactionForm({
 
       {/* Payment method */}
       <div>
-        <label htmlFor="paymentMethod" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <label htmlFor="paymentMethodId" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Payment method
         </label>
-        <select
-          id="paymentMethod"
-          name="paymentMethod"
-          defaultValue={transaction?.paymentMethod ?? "OTHER"}
-          className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-        >
-          {PAYMENT_METHODS.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
-        </select>
+        {visiblePaymentMethods.length === 0 ? (
+          <>
+            <select
+              id="paymentMethodId"
+              disabled
+              className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 text-neutral-400 dark:text-neutral-500 focus:outline-none"
+            >
+              <option>No payment methods</option>
+            </select>
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Add a payment method in Settings.
+            </p>
+          </>
+        ) : (
+          <select
+            id="paymentMethodId"
+            name="paymentMethodId"
+            defaultValue={defaultPaymentMethodId}
+            className="mt-1 block w-full rounded-xl border border-neutral-300 dark:border-neutral-700 px-4 py-3 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            {visiblePaymentMethods.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Location label */}

@@ -37,10 +37,7 @@ export default async function TransactionDetailPage({
           label="Date"
           value={format(t.date, "EEEE, MMMM d, yyyy")}
         />
-        <DetailRow
-          label="Payment"
-          value={t.paymentMethod.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
-        />
+        <DetailRow label="Payment" value={t.paymentMethod.name} />
         {t.note && <DetailRow label="Note" value={t.note} />}
         {t.locationLabel && <DetailRow label="Location" value={t.locationLabel} />}
       </dl>

@@ -2,15 +2,6 @@ import { z } from "zod";
 
 export const transactionTypeSchema = z.enum(["EXPENSE", "INCOME"]);
 
-export const paymentMethodSchema = z.enum([
-  "CASH",
-  "CREDIT_CARD",
-  "DEBIT_CARD",
-  "BANK_TRANSFER",
-  "DIGITAL_WALLET",
-  "OTHER",
-]);
-
 export const createTransactionSchema = z.object({
   type: transactionTypeSchema,
   amount: z
@@ -20,7 +11,7 @@ export const createTransactionSchema = z.object({
   categoryId: z.string().min(1, "Category is required"),
   date: z.string().min(1, "Date is required"),
   note: z.string().max(500).optional().or(z.literal("")),
-  paymentMethod: paymentMethodSchema.default("OTHER"),
+  paymentMethodId: z.string().min(1, "Payment method is required"),
   locationLabel: z.string().max(200).optional().or(z.literal("")),
   lat: z.string().optional().or(z.literal("")),
   lng: z.string().optional().or(z.literal("")),
@@ -60,6 +51,20 @@ export const reorderCategoriesSchema = z.object({
   ids: z.array(z.string()).min(1),
 });
 
+export const createPaymentMethodSchema = z.object({
+  name: z.string().min(1).max(50),
+});
+
+export const updatePaymentMethodSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(50).optional(),
+  isHidden: z.boolean().optional(),
+});
+
+export const reorderPaymentMethodsSchema = z.object({
+  ids: z.array(z.string()).min(1),
+});
+
 export const setBudgetSchema = z.object({
   categoryId: z.string().min(1),
   month: z.string().min(1), // YYYY-MM-01
@@ -73,4 +78,5 @@ export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
 export type TransactionFilterInput = z.infer<typeof transactionFilterSchema>;
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+export type CreatePaymentMethodInput = z.infer<typeof createPaymentMethodSchema>;
 export type SetBudgetInput = z.infer<typeof setBudgetSchema>;

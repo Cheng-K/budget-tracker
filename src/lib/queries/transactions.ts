@@ -30,7 +30,7 @@ export async function listTransactions(
   const [items, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
-      include: { category: true, receipt: true },
+      include: { category: true, receipt: true, paymentMethod: true },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: filter.limit,
       ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
@@ -44,7 +44,7 @@ export async function listTransactions(
 export async function getTransaction(userId: string, id: string) {
   return prisma.transaction.findFirst({
     where: { id, userId },
-    include: { category: true, receipt: true },
+    include: { category: true, receipt: true, paymentMethod: true },
   });
 }
 
@@ -57,7 +57,7 @@ export async function createTransaction(
     categoryId: string;
     date: Date;
     note?: string | null;
-    paymentMethod: string;
+    paymentMethodId: string;
     locationLabel?: string | null;
     lat?: Prisma.Decimal | null;
     lng?: Prisma.Decimal | null;
@@ -75,14 +75,14 @@ export async function createTransaction(
       categoryId: data.categoryId,
       date: data.date,
       note: data.note || null,
-      paymentMethod: data.paymentMethod as "CASH" | "CREDIT_CARD" | "DEBIT_CARD" | "BANK_TRANSFER" | "DIGITAL_WALLET" | "OTHER",
+      paymentMethodId: data.paymentMethodId,
       locationLabel: data.locationLabel || null,
       lat: (data.lat ?? null) as Prisma.Decimal | null,
       lng: (data.lng ?? null) as Prisma.Decimal | null,
       recurringTemplateId: data.recurringTemplateId || null,
       occurrenceDate: data.occurrenceDate ?? null,
     },
-    include: { category: true },
+    include: { category: true, paymentMethod: true },
   });
 }
 
@@ -95,7 +95,7 @@ export async function updateTransaction(
     categoryId?: string;
     date?: Date;
     note?: string | null;
-    paymentMethod?: string;
+    paymentMethodId?: string;
     locationLabel?: string | null;
     lat?: Prisma.Decimal | null;
     lng?: Prisma.Decimal | null;
@@ -114,12 +114,12 @@ export async function updateTransaction(
       ...(data.categoryId && { categoryId: data.categoryId }),
       ...(data.date && { date: data.date }),
       ...(data.note !== undefined && { note: data.note || null }),
-      ...(data.paymentMethod && { paymentMethod: data.paymentMethod as "CASH" | "CREDIT_CARD" | "DEBIT_CARD" | "BANK_TRANSFER" | "DIGITAL_WALLET" | "OTHER" }),
+      ...(data.paymentMethodId && { paymentMethodId: data.paymentMethodId }),
       ...(data.locationLabel !== undefined && { locationLabel: data.locationLabel || null }),
       ...(data.lat !== undefined && { lat: data.lat as Prisma.Decimal | null }),
       ...(data.lng !== undefined && { lng: data.lng as Prisma.Decimal | null }),
     },
-    include: { category: true },
+    include: { category: true, paymentMethod: true },
   });
 }
 

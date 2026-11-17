@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import { prisma } from "@/lib/db";
-import type { RecurringFrequency, TransactionType, PaymentMethod } from "@prisma/client";
+import type { RecurringFrequency, TransactionType } from "@prisma/client";
 
 /**
  * Compute the k-th occurrence date from a start date + frequency.
@@ -121,7 +121,7 @@ export async function materializeDueForUser(userId: string, today: Date) {
               currencyCode: template.currencyCode,
               date: occDate,
               note: template.note,
-              paymentMethod: template.paymentMethod as PaymentMethod,
+              paymentMethodId: template.paymentMethodId,
               recurringTemplateId: template.id,
               occurrenceDate: occDate,
             },

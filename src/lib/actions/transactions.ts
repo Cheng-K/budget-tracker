@@ -12,6 +12,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from "@/lib/queries/transactions";
+import { getPaymentMethod } from "@/lib/queries/payment-methods";
 import { toDecimal, parseUserAmount } from "@/lib/money";
 
 function parseDate(dateStr: string): Date {
@@ -29,7 +30,7 @@ export async function createTransactionAction(formData: FormData) {
     categoryId: String(formData.get("categoryId") ?? ""),
     date: String(formData.get("date") ?? ""),
     note: String(formData.get("note") ?? ""),
-    paymentMethod: String(formData.get("paymentMethod") ?? "OTHER"),
+    paymentMethodId: String(formData.get("paymentMethodId") ?? ""),
     locationLabel: String(formData.get("locationLabel") ?? ""),
     lat: String(formData.get("lat") ?? ""),
     lng: String(formData.get("lng") ?? ""),
@@ -45,13 +46,16 @@ export async function createTransactionAction(formData: FormData) {
   const amount = parseUserAmount(d.amount);
   if (!amount) return { error: "Invalid amount" };
 
+  const paymentMethod = await getPaymentMethod(user.id, d.paymentMethodId);
+  if (!paymentMethod) return { error: "Invalid payment method" };
+
   await createTransaction(user.id, user.currencyCode!, {
     type: d.type,
     amount,
     categoryId: d.categoryId,
     date: parseDate(d.date),
     note: d.note || null,
-    paymentMethod: d.paymentMethod,
+    paymentMethodId: paymentMethod.id,
     locationLabel: d.locationLabel || null,
     lat: d.lat ? toDecimal(d.lat) : null,
     lng: d.lng ? toDecimal(d.lng) : null,
@@ -72,7 +76,7 @@ export async function updateTransactionAction(id: string, formData: FormData) {
     categoryId: String(formData.get("categoryId") ?? ""),
     date: String(formData.get("date") ?? ""),
     note: String(formData.get("note") ?? ""),
-    paymentMethod: String(formData.get("paymentMethod") ?? ""),
+    paymentMethodId: String(formData.get("paymentMethodId") ?? ""),
     locationLabel: String(formData.get("locationLabel") ?? ""),
     lat: String(formData.get("lat") ?? ""),
     lng: String(formData.get("lng") ?? ""),
@@ -88,13 +92,18 @@ export async function updateTransactionAction(id: string, formData: FormData) {
   const amount = d.amount ? parseUserAmount(d.amount) : null;
   if (d.amount && !amount) return { error: "Invalid amount" };
 
+  if (d.paymentMethodId) {
+    const paymentMethod = await getPaymentMethod(user.id, d.paymentMethodId);
+    if (!paymentMethod) return { error: "Invalid payment method" };
+  }
+
   const result = await updateTransaction(user.id, id, {
     ...(d.type && { type: d.type }),
     ...(amount && { amount }),
     ...(d.categoryId && { categoryId: d.categoryId }),
     ...(d.date && { date: parseDate(d.date) }),
     ...(d.note !== undefined && { note: d.note || null }),
-    ...(d.paymentMethod && { paymentMethod: d.paymentMethod }),
+    ...(d.paymentMethodId && { paymentMethodId: d.paymentMethodId }),
     ...(d.locationLabel !== undefined && { locationLabel: d.locationLabel || null }),
     ...(d.lat !== undefined && { lat: d.lat ? toDecimal(d.lat) : null }),
     ...(d.lng !== undefined && { lng: d.lng ? toDecimal(d.lng) : null }),

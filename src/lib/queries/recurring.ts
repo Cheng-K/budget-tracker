@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
-import type { RecurringFrequency, TransactionType, PaymentMethod } from "@prisma/client";
+import type { RecurringFrequency, TransactionType } from "@prisma/client";
 
 export async function listTemplates(userId: string) {
   return prisma.recurringTemplate.findMany({
     where: { userId },
     include: {
       category: true,
+      paymentMethod: true,
       occurrences: {
         orderBy: { occurrenceDate: "desc" },
         take: 1,
@@ -19,7 +20,7 @@ export async function listTemplates(userId: string) {
 export async function getTemplate(userId: string, id: string) {
   return prisma.recurringTemplate.findFirst({
     where: { id, userId },
-    include: { category: true },
+    include: { category: true, paymentMethod: true },
   });
 }
 
@@ -34,7 +35,7 @@ export async function createTemplate(
     startDate: Date;
     endDate?: Date | null;
     note?: string | null;
-    paymentMethod: PaymentMethod;
+    paymentMethodId: string;
   }
 ) {
   return prisma.recurringTemplate.create({
@@ -48,9 +49,9 @@ export async function createTemplate(
       startDate: data.startDate,
       endDate: data.endDate ?? null,
       note: data.note || null,
-      paymentMethod: data.paymentMethod,
+      paymentMethodId: data.paymentMethodId,
     },
-    include: { category: true },
+    include: { category: true, paymentMethod: true },
   });
 }
 
@@ -65,7 +66,7 @@ export async function updateTemplate(
     startDate: Date;
     endDate: Date | null;
     note: string | null;
-    paymentMethod: PaymentMethod;
+    paymentMethodId: string;
     isActive: boolean;
   }>
 ) {
@@ -74,7 +75,7 @@ export async function updateTemplate(
   return prisma.recurringTemplate.update({
     where: { id },
     data,
-    include: { category: true },
+    include: { category: true, paymentMethod: true },
   });
 }
 

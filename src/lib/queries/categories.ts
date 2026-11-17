@@ -6,7 +6,9 @@ export async function listCategories(userId: string, includeHidden = false) {
       userId,
       ...(includeHidden ? {} : { isHidden: false }),
     },
-    orderBy: { sortOrder: "asc" },
+    // `kind` first keeps the combined list deterministic (EXPENSE block, then
+    // INCOME) even after a per-kind reorder renumbers sortOrder to 0..n-1.
+    orderBy: [{ kind: "asc" }, { sortOrder: "asc" }, { id: "asc" }],
   });
 }
 
@@ -53,6 +55,9 @@ export async function reorderCategories(userId: string, ids: string[]) {
   });
   if (owned.length !== ids.length) return false;
 
+  // Callers pass one kind-group's ids at a time. After this, sortOrder is
+  // unique within (userId, kind) but not globally — `listCategories` sorts by
+  // kind first so combined lists stay deterministic.
   await prisma.$transaction(
     ids.map((id, index) =>
       prisma.category.update({ where: { id }, data: { sortOrder: index } })
@@ -64,11 +69,16 @@ export async function reorderCategories(userId: string, ids: string[]) {
 export async function deleteCategory(userId: string, id: string) {
   const existing = await prisma.category.findFirst({
     where: { id, userId },
-    include: { _count: { select: { transactions: true } } },
+    include: {
+      _count: { select: { transactions: true, recurringTemplates: true } },
+    },
   });
   if (!existing) return { ok: false, reason: "not_found" as const };
   if (existing._count.transactions > 0) {
     return { ok: false, reason: "has_transactions" as const };
+  }
+  if (existing._count.recurringTemplates > 0) {
+    return { ok: false, reason: "has_templates" as const };
   }
   await prisma.category.delete({ where: { id } });
   return { ok: true as const };
