@@ -10,10 +10,8 @@ export default async function EditTransactionPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const user = await requireUser();
-  const { id } = await params;
-  // Hidden rows are included so the form can render the transaction's
-  // current category/payment method even when either has been hidden.
+
+  const [user, { id }] = await Promise.all([requireUser(), params]);
   const [transaction, categories, paymentMethods] = await Promise.all([
     getTransaction(user.id, id),
     listCategories(user.id, true),

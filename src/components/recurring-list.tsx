@@ -8,11 +8,11 @@ import {
   deleteTemplateAction,
   materializeNowAction,
 } from "@/lib/actions/recurring";
-import type { Category, RecurringTemplate, RecurringOccurrence, Transaction } from "@prisma/client";
+import type { Category, RecurringTemplate } from "@prisma/client";
 
 type TemplateWithRelations = RecurringTemplate & {
   category: Category;
-  occurrences: (RecurringOccurrence & { transaction: Transaction | null })[];
+  lastOccurrence: { occurrenceDate: Date; transactionId: string | null } | null;
 };
 
 export function RecurringList({
@@ -46,7 +46,7 @@ export function RecurringList({
       </div>
 
       {templates.map((t) => {
-        const lastOcc = t.occurrences[0];
+        const lastOcc = t.lastOccurrence;
         const nextDate = getNextDate(t);
 
         return (
@@ -82,7 +82,7 @@ export function RecurringList({
                 ) : (
                   <span className="text-neutral-400 dark:text-neutral-500">Ended</span>
                 )}
-                {lastOcc?.transaction && (
+                {lastOcc?.transactionId && (
                   <span className="ml-2 text-neutral-400 dark:text-neutral-500">
                     Last: {format(lastOcc.occurrenceDate, "MMM d")}
                   </span>

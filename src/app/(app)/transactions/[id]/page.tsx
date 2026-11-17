@@ -12,8 +12,7 @@ export default async function TransactionDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const user = await requireUser();
-  const { id } = await params;
+  const [user, { id }] = await Promise.all([requireUser(), params]);
   const t = await getTransaction(user.id, id);
   if (!t) notFound();
 

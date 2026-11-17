@@ -27,18 +27,15 @@ export async function listTransactions(
     where.note = { contains: filter.q, mode: "insensitive" };
   }
 
-  const [items, total] = await Promise.all([
-    prisma.transaction.findMany({
-      where,
-      include: { category: true, receipt: true, paymentMethod: true },
-      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-      take: filter.limit,
-      ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
-    }),
-    prisma.transaction.count({ where }),
-  ]);
+  const items = await prisma.transaction.findMany({
+    where,
+    include: { category: true, receipt: true },
+    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    take: filter.limit,
+    ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
+  });
 
-  return { items, total, nextCursor: items.length === filter.limit ? items[items.length - 1]?.id : null };
+  return { items, nextCursor: items.length === filter.limit ? items[items.length - 1]?.id : null };
 }
 
 export async function getTransaction(userId: string, id: string) {

@@ -2,18 +2,32 @@ import { prisma } from "@/lib/db";
 import type { RecurringFrequency, TransactionType } from "@prisma/client";
 
 export async function listTemplates(userId: string) {
-  return prisma.recurringTemplate.findMany({
-    where: { userId },
-    include: {
-      category: true,
-      paymentMethod: true,
-      occurrences: {
-        orderBy: { occurrenceDate: "desc" },
-        take: 1,
-        include: { transaction: true },
-      },
-    },
-    orderBy: { startDate: "asc" },
+  const [templates, lastRows] = await Promise.all([
+    prisma.recurringTemplate.findMany({
+      where: { userId },
+      include: { category: true },
+      orderBy: { startDate: "asc" },
+    }),
+    // Latest occurrence per template. Nested `take: 1` would make Prisma
+    // fetch every occurrence in memory, so aggregate in SQL instead.
+    prisma.$queryRaw<{ templateId: string; occurrenceDate: Date; transactionId: string | null }[]>`
+      SELECT DISTINCT ON (o."templateId") o."templateId", o."occurrenceDate", o."transactionId"
+      FROM "RecurringOccurrence" o
+      JOIN "RecurringTemplate" t ON t."id" = o."templateId"
+      WHERE t."userId" = ${userId}
+      ORDER BY o."templateId", o."occurrenceDate" DESC
+    `,
+  ]);
+
+  const occMap = new Map(lastRows.map((o) => [o.templateId, o]));
+  return templates.map((t) => {
+    const occ = occMap.get(t.id);
+    return {
+      ...t,
+      lastOccurrence: occ
+        ? { occurrenceDate: occ.occurrenceDate, transactionId: occ.transactionId }
+        : null,
+    };
   });
 }
 
