@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getPrevMonth } from "@/lib/month";
+import { toDecimal, ZERO } from "@/lib/money";
 
 export async function getBudgets(userId: string, month: Date) {
   return prisma.budget.findMany({
@@ -82,21 +83,21 @@ export async function getBudgetSummary(userId: string, month: Date) {
   );
 
   return budgets.map((b) => {
-    const spent = spendingMap.get(b.categoryId) ?? "0";
-    const limit = b.limitAmount.toString();
-    const spentNum = parseFloat(spent);
-    const limitNum = parseFloat(limit);
-    const pct = limitNum > 0 ? Math.min((spentNum / limitNum) * 100, 999) : 0;
+    const spentStr = spendingMap.get(b.categoryId) ?? "0";
+    const limitStr = b.limitAmount.toString();
+    const spent = toDecimal(spentStr);
+    const limit = toDecimal(limitStr);
+    const pct = limit.gt(0) ? spent.div(limit).mul(100) : ZERO;
 
     return {
       id: b.id,
       categoryId: b.categoryId,
       categoryName: b.category.name,
-      limitAmount: limit,
-      spentAmount: spent,
-      percentage: Math.round(pct),
-      isOver: spentNum > limitNum,
-      isNear: pct >= 70 && spentNum <= limitNum,
+      limitAmount: limitStr,
+      spentAmount: spentStr,
+      percentage: Math.round(Math.min(pct.toNumber(), 999)),
+      isOver: spent.gt(limit),
+      isNear: pct.gte(70) && spent.lte(limit),
     };
   });
 }

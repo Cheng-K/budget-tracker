@@ -104,11 +104,14 @@ This starts everything: the app (port 3000), Postgres (5432), S3 storage (9090),
 ## Development
 
 ```bash
-# Unit tests
+# Unit tests (no infra needed)
 npm test
 
-# E2E tests (requires running app)
-npx playwright test
+# Integration tests (real Postgres: npm run infra && npm run db:migrate)
+npm run test:integration
+
+# E2E tests (starts the dev server + infra automatically)
+npm run test:e2e
 
 # Type check
 npx tsc --noEmit
@@ -182,6 +185,7 @@ prisma/
 └── migrations/           # SQL migrations
 tests/
 ├── e2e/                  # Playwright tests
+├── integration/          # DB-backed Vitest tests (real Postgres)
 └── (unit tests colocated in src/lib/__tests__/)
 ```
 

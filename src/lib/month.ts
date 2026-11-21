@@ -5,9 +5,10 @@
  * non-UTC servers, so we compute month bounds in UTC here instead.
  */
 export function getMonthRange(monthParam?: string | null) {
-  // Parse "YYYY-MM" or default to the current month (UTC).
+  // Parse "YYYY-MM" or default to the current month (UTC). Month 13+
+  // would roll the Date over while leaving a bogus key, so reject it here.
   let year: number, month: number;
-  if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+  if (monthParam && /^\d{4}-(0[1-9]|1[0-2])$/.test(monthParam)) {
     year = parseInt(monthParam.slice(0, 4), 10);
     month = parseInt(monthParam.slice(5, 7), 10) - 1; // 0-based
   } else {

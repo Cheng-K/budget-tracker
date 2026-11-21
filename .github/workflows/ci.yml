@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Run unit tests
+        run: npm run test -- --reporter=default --reporter=json --outputFile.json=test-results/vitest-report.json
+      - name: Test summary
+        if: always()
+        run: node scripts/ci-summary.mjs vitest test-results/vitest-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-report
+          path: test-results/vitest-report.json
+          retention-days: 7
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Values live under Settings → Secrets and variables → Actions:
+    # AUTH_SECRET is a repository secret; the rest are repository variables
+    # (non-sensitive CI config). Nothing is hardcoded in this file.
+    env:
+      DATABASE_URL: ${{ vars.CI_DATABASE_URL }}
+      DIRECT_URL: ${{ vars.CI_DIRECT_URL }}
+      AUTH_SECRET: ${{ secrets.CI_AUTH_SECRET }}
+      APP_URL: ${{ vars.CI_APP_URL }}
+      E2E_AUTH_ENABLED: ${{ vars.CI_E2E_AUTH_ENABLED }}
+      S3_ENDPOINT: ${{ vars.CI_S3_ENDPOINT }}
+      S3_PUBLIC_ENDPOINT: ${{ vars.CI_S3_PUBLIC_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ vars.CI_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ vars.CI_AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ vars.CI_AWS_DEFAULT_REGION }}
+      S3_BUCKET: ${{ vars.CI_S3_BUCKET }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required CI configuration is set
+        run: |
+          missing=0
+          if [ -z "$AUTH_SECRET" ]; then
+            echo "::error::Repository secret CI_AUTH_SECRET is missing or empty"
+            missing=1
+          fi
+          for v in DATABASE_URL DIRECT_URL APP_URL E2E_AUTH_ENABLED \
+                   S3_ENDPOINT S3_PUBLIC_ENDPOINT AWS_ACCESS_KEY_ID \
+                   AWS_SECRET_ACCESS_KEY AWS_DEFAULT_REGION S3_BUCKET; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Repository variable CI_$v is missing or empty"
+              missing=1
+            fi
+          done
+          exit "$missing"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Bring up infra + migrations before Playwright so its 120s webServer
+      # timeout isn't spent pulling Docker images. `npm run dev` (the
+      # webServer command) re-runs both idempotently.
+      - run: npm run infra
+      - run: npm run db:migrate
+      # DB-backed integration tests share the e2e job's infra; per-test users
+      # are cascade-deleted, so they leave nothing behind for the e2e run.
+      - name: Run integration tests
+        run: npm run test:integration -- --reporter=default --reporter=json --outputFile.json=test-results/integration-report.json
+      - name: Integration summary
+        if: always()
+        run: node scripts/ci-summary.mjs vitest test-results/integration-report.json Integration
+      - name: Run e2e tests
+        run: npm run test:e2e -- --reporter=list,html,json,github
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/playwright-report.json
+      - name: Test summary
+        if: always()
+        run: node scripts/ci-summary.mjs playwright test-results/playwright-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

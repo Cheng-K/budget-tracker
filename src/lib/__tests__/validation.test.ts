@@ -6,6 +6,7 @@ import {
   updatePaymentMethodSchema,
   reorderPaymentMethodsSchema,
   setBudgetSchema,
+  createTemplateSchema,
   transactionFilterSchema,
 } from "@/lib/validation";
 
@@ -73,6 +74,38 @@ describe("createTransactionSchema", () => {
       date: "",
     });
     expect(result.success).toBe(false);
+  });
+
+  it("rejects non-ISO date", () => {
+    const result = createTransactionSchema.safeParse({
+      ...valid,
+      date: "15-01-2026",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects garbage date", () => {
+    const result = createTransactionSchema.safeParse({
+      ...valid,
+      date: "garbage",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects overflow calendar date (Feb 31)", () => {
+    const result = createTransactionSchema.safeParse({
+      ...valid,
+      date: "2026-02-31",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts leap day", () => {
+    const result = createTransactionSchema.safeParse({
+      ...valid,
+      date: "2024-02-29",
+    });
+    expect(result.success).toBe(true);
   });
 
   it("rejects empty paymentMethodId", () => {
@@ -178,6 +211,117 @@ describe("setBudgetSchema", () => {
       month: "2026-01-01",
       limitAmount: "-100",
     });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts YYYY-MM month key", () => {
+    const result = setBudgetSchema.safeParse({
+      categoryId: "cat1",
+      month: "2026-01",
+      limitAmount: "500.00",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects garbage month", () => {
+    const result = setBudgetSchema.safeParse({
+      categoryId: "cat1",
+      month: "garbage",
+      limitAmount: "500.00",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects month 13", () => {
+    const result = setBudgetSchema.safeParse({
+      categoryId: "cat1",
+      month: "2026-13-01",
+      limitAmount: "500.00",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-first day of month", () => {
+    const result = setBudgetSchema.safeParse({
+      categoryId: "cat1",
+      month: "2026-01-15",
+      limitAmount: "500.00",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("createTemplateSchema", () => {
+  const valid = {
+    type: "EXPENSE",
+    amount: "120.00",
+    categoryId: "cat1",
+    frequency: "MONTHLY",
+    startDate: "2026-01-31",
+    endDate: "",
+    note: "Rent",
+    paymentMethodId: "pm1",
+  };
+
+  it("accepts valid input", () => {
+    const result = createTemplateSchema.safeParse(valid);
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts endDate on or after startDate", () => {
+    expect(
+      createTemplateSchema.safeParse({ ...valid, endDate: "2026-12-31" }).success
+    ).toBe(true);
+    expect(
+      createTemplateSchema.safeParse({ ...valid, endDate: valid.startDate }).success
+    ).toBe(true);
+  });
+
+  it("rejects endDate before startDate", () => {
+    const result = createTemplateSchema.safeParse({
+      ...valid,
+      endDate: "2025-12-31",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative amount", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, amount: "-120" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-numeric amount", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, amount: "abc" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects amount with more than 4 decimals", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, amount: "1.23456" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid frequency", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, frequency: "DAILY" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid type", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, type: "INVALID" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid startDate", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, startDate: "garbage" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects overflow startDate (Feb 31)", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, startDate: "2026-02-31" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing paymentMethodId", () => {
+    const result = createTemplateSchema.safeParse({ ...valid, paymentMethodId: "" });
     expect(result.success).toBe(false);
   });
 });

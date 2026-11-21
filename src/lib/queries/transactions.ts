@@ -78,6 +78,8 @@ export async function createTransaction(
       lng: (data.lng ?? null) as Prisma.Decimal | null,
       recurringTemplateId: data.recurringTemplateId || null,
       occurrenceDate: data.occurrenceDate ?? null,
+      // Receipt owns the FK (Receipt.transactionId), so link from this side.
+      ...(data.receiptId ? { receipt: { connect: { id: data.receiptId } } } : {}),
     },
     include: { category: true, paymentMethod: true },
   });
@@ -115,6 +117,12 @@ export async function updateTransaction(
       ...(data.locationLabel !== undefined && { locationLabel: data.locationLabel || null }),
       ...(data.lat !== undefined && { lat: data.lat as Prisma.Decimal | null }),
       ...(data.lng !== undefined && { lng: data.lng as Prisma.Decimal | null }),
+      // undefined = leave the link alone; null/"" = unlink; id = (re)link.
+      ...(data.receiptId !== undefined && {
+        receipt: data.receiptId
+          ? { connect: { id: data.receiptId } }
+          : { disconnect: true },
+      }),
     },
     include: { category: true, paymentMethod: true },
   });
