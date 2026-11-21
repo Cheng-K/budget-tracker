@@ -22,14 +22,10 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120_000,
     env: {
-      // The webServer runs on the host, where the docker-network hostname
-      // (`s3`, used by .env for the containerized app) is unresolvable.
-      // CI supplies a host-reachable endpoint via CI_S3_ENDPOINT; a local
-      // shell may export the docker hostname — rewrite it to localhost.
-      S3_ENDPOINT: (process.env.S3_ENDPOINT || "http://localhost:9090").replace(
-        /^(https?:\/\/)s3(:|\/)/,
-        "$1localhost$2"
-      ),
+      // The webServer runs on the host, so its S3 client must use the
+      // public (host-reachable) endpoint — not S3_ENDPOINT, which points
+      // at the docker-internal hostname for the containerized app.
+      S3_ENDPOINT: process.env.S3_PUBLIC_ENDPOINT || "http://localhost:9090",
     },
   },
 });
