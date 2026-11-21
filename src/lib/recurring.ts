@@ -1,7 +1,6 @@
-import Decimal from "decimal.js";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import type { RecurringFrequency, TransactionType } from "@prisma/client";
+import type { RecurringFrequency } from "@prisma/client";
 
 /**
  * Compute the k-th occurrence date from a start date + frequency.

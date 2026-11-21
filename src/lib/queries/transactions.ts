@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import type { Prisma, Transaction } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { TransactionFilterInput } from "@/lib/validation";
 
 export async function listTransactions(

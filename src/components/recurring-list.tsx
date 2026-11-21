@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { formatMoney } from "@/lib/money";
 import {
   toggleTemplateAction,

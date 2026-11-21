@@ -4,7 +4,6 @@ import { requireUser } from "@/lib/require-user";
 import { listTransactions } from "@/lib/queries/transactions";
 import { listCategories } from "@/lib/queries/categories";
 import { transactionFilterSchema } from "@/lib/validation";
-import { formatMoney } from "@/lib/money";
 import { getMonthRange } from "@/lib/month";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { TransactionFilters } from "@/components/transaction-filters";

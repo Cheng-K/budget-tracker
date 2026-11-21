@@ -1,6 +1,6 @@
 import type { Decimal } from "decimal.js";
 import { prisma } from "@/lib/db";
-import { utcMonthStart, utcMonthEnd, getPrevMonth } from "@/lib/month";
+import { utcMonthEnd, getPrevMonth } from "@/lib/month";
 import { toDecimal, ZERO } from "@/lib/money";
 
 function monthLabel(d: Date): string {
