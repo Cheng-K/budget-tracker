@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import type { RecurringFrequency, TransactionType } from "@prisma/client";
 
@@ -133,8 +134,17 @@ export async function materializeDueForUser(userId: string, today: Date) {
           });
         });
         created++;
-      } catch {
-        // P2002 = duplicate — another process materialized this occurrence already. Safe to skip.
+      } catch (err) {
+        // P2002 = duplicate — another process materialized this occurrence
+        // already. Safe to skip; anything else is a real failure and must
+        // surface, not silently drop the occurrence.
+        if (
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === "P2002"
+        ) {
+          continue;
+        }
+        throw err;
       }
     }
   }
