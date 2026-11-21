@@ -16,5 +16,11 @@ export default defineConfig({
     port: 3000,
     reuseExistingServer: true,
     timeout: 120_000,
+    env: {
+      // The dev server runs on the host, but .env's S3_ENDPOINT uses the
+      // docker-network hostname (`s3`) for the containerized app. CI sets a
+      // host-reachable endpoint via CI_S3_ENDPOINT — respect it if present.
+      S3_ENDPOINT: process.env.S3_ENDPOINT || "http://localhost:9090",
+    },
   },
 });
