@@ -8,37 +8,48 @@ import {
   deleteTemplate,
 } from "@/lib/queries/recurring";
 import { getPaymentMethod } from "@/lib/queries/payment-methods";
+import { getCategory } from "@/lib/queries/categories";
+import { createTemplateSchema } from "@/lib/validation";
 import { materializeDueForUser } from "@/lib/recurring";
 
 export async function createTemplateAction(formData: FormData) {
   const user = await requireUser();
   if (!user.currencyCode) return { error: "Set a currency first" };
 
-  const data = {
-    categoryId: String(formData.get("categoryId") ?? ""),
-    type: String(formData.get("type") ?? "EXPENSE") as "EXPENSE" | "INCOME",
+  const raw = {
+    type: String(formData.get("type") ?? "EXPENSE"),
     amount: String(formData.get("amount") ?? ""),
-    frequency: String(formData.get("frequency") ?? "MONTHLY") as "WEEKLY" | "MONTHLY" | "YEARLY",
-    startDate: new Date(String(formData.get("startDate") ?? "") + "T00:00:00Z"),
-    endDate: formData.get("endDate")
-      ? new Date(String(formData.get("endDate")) + "T00:00:00Z")
-      : null,
+    categoryId: String(formData.get("categoryId") ?? ""),
+    frequency: String(formData.get("frequency") ?? "MONTHLY"),
+    startDate: String(formData.get("startDate") ?? ""),
+    endDate: String(formData.get("endDate") ?? ""),
     note: String(formData.get("note") ?? ""),
     paymentMethodId: String(formData.get("paymentMethodId") ?? ""),
   };
 
-  if (!data.categoryId || !data.amount || isNaN(data.startDate.getTime())) {
-    return { error: "Category, amount, and start date are required" };
+  const parsed = createTemplateSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
-  if (!data.paymentMethodId) {
-    return { error: "Payment method is required" };
+  const d = parsed.data;
+
+  const category = await getCategory(user.id, d.categoryId);
+  if (!category) return { error: "Invalid category" };
+  if (category.kind !== d.type) {
+    return { error: "Category does not match transaction type" };
   }
 
-  const paymentMethod = await getPaymentMethod(user.id, data.paymentMethodId);
+  const paymentMethod = await getPaymentMethod(user.id, d.paymentMethodId);
   if (!paymentMethod) return { error: "Invalid payment method" };
 
   await createTemplate(user.id, user.currencyCode!, {
-    ...data,
+    categoryId: d.categoryId,
+    type: d.type,
+    amount: d.amount,
+    frequency: d.frequency,
+    startDate: new Date(d.startDate + "T00:00:00Z"),
+    endDate: d.endDate ? new Date(d.endDate + "T00:00:00Z") : null,
+    note: d.note || null,
     paymentMethodId: paymentMethod.id,
   });
   revalidatePath("/recurring");
