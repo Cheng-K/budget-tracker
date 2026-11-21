@@ -2,7 +2,12 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  timeout: 30_000,
+  // Cold dev-server compiles can make the first navigations slow; the
+  // globalSetup warm-up handles most of it, these are the safety margin.
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
+  globalSetup: "./tests/e2e/global-setup.ts",
+  globalTimeout: 180_000,
   retries: 1,
   use: {
     baseURL: "http://localhost:3000",
@@ -17,10 +22,14 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120_000,
     env: {
-      // The dev server runs on the host, but .env's S3_ENDPOINT uses the
-      // docker-network hostname (`s3`) for the containerized app. CI sets a
-      // host-reachable endpoint via CI_S3_ENDPOINT — respect it if present.
-      S3_ENDPOINT: process.env.S3_ENDPOINT || "http://localhost:9090",
+      // The webServer runs on the host, where the docker-network hostname
+      // (`s3`, used by .env for the containerized app) is unresolvable.
+      // CI supplies a host-reachable endpoint via CI_S3_ENDPOINT; a local
+      // shell may export the docker hostname — rewrite it to localhost.
+      S3_ENDPOINT: (process.env.S3_ENDPOINT || "http://localhost:9090").replace(
+        /^(https?:\/\/)s3(:|\/)/,
+        "$1localhost$2"
+      ),
     },
   },
 });

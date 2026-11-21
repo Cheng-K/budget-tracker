@@ -1,8 +1,11 @@
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 
 // Writes a per-test summary (pass rate, failures, full list) to the GitHub
-// Actions job summary. Usage: node scripts/ci-summary.mjs <vitest|playwright> <report.json>
-const [kind, file] = process.argv.slice(2);
+// Actions job summary.
+// Usage: node scripts/ci-summary.mjs <vitest|playwright> <report.json> [label]
+// label overrides the heading (e.g. "Integration" for a second vitest report).
+const [kind, file, label] = process.argv.slice(2);
+const heading = label ?? (kind === "vitest" ? "Unit" : "E2E");
 
 function emit(md) {
   if (process.env.GITHUB_STEP_SUMMARY) {
@@ -83,7 +86,7 @@ if (!kind || !file || !["vitest", "playwright"].includes(kind)) {
 }
 
 if (!existsSync(file)) {
-  emit(`## ${kind === "vitest" ? "Unit" : "E2E"} tests\n\n⚠️ Report \`${file}\` not found — the test step likely failed before producing results. See the job log.`);
+  emit(`## ${heading} tests\n\n⚠️ Report \`${file}\` not found — the test step likely failed before producing results. See the job log.`);
   process.exit(0);
 }
 
@@ -91,7 +94,7 @@ const report = JSON.parse(readFileSync(file, "utf8"));
 const s = kind === "vitest" ? fromVitest(report) : fromPlaywright(report);
 const rate = s.total ? Math.round((s.passed / s.total) * 100) : 0;
 
-let md = `## ${kind === "vitest" ? "Unit" : "E2E"} tests\n\n`;
+let md = `## ${heading} tests\n\n`;
 md += `**${s.passed}/${s.total} passed (${rate}%)**`;
 if (s.failed) md += ` · ${s.failed} failed`;
 if (s.flaky) md += ` · ${s.flaky} flaky`;

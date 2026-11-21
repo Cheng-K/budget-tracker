@@ -128,22 +128,19 @@ export function BudgetList({
         </>
       )}
 
-      {/* Budget amount modal (create + edit) */}
-      <BudgetAmountModal
-        open={modal.kind === "set" || modal.kind === "edit"}
-        onClose={() => setModal({ kind: "none" })}
-        categoryName={
-          modal.kind === "set" || modal.kind === "edit" ? modal.categoryName : ""
-        }
-        currency={currency}
-        currentAmount={modal.kind === "edit" ? modal.currentAmount : undefined}
-        isPending={isPending}
-        onConfirm={(amount) => {
-          if (modal.kind === "set" || modal.kind === "edit") {
-            handleSetBudget(modal.categoryId, amount);
-          }
-        }}
-      />
+      {/* Budget amount modal (create + edit) — mounted only while open so
+          its state resets on each opening. */}
+      {(modal.kind === "set" || modal.kind === "edit") && (
+        <BudgetAmountModal
+          open
+          onClose={() => setModal({ kind: "none" })}
+          categoryName={modal.categoryName}
+          currency={currency}
+          currentAmount={modal.kind === "edit" ? modal.currentAmount : undefined}
+          isPending={isPending}
+          onConfirm={(amount) => handleSetBudget(modal.categoryId, amount)}
+        />
+      )}
 
       {/* Remove confirmation modal */}
       <ConfirmModal

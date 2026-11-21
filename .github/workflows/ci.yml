@@ -19,6 +19,10 @@ jobs:
           node-version: 24.22.3
           cache: npm
       - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
       - name: Run unit tests
         run: npm run test -- --reporter=default --reporter=json --outputFile.json=test-results/vitest-report.json
       - name: Test summary
@@ -79,6 +83,13 @@ jobs:
       # webServer command) re-runs both idempotently.
       - run: npm run infra
       - run: npm run db:migrate
+      # DB-backed integration tests share the e2e job's infra; per-test users
+      # are cascade-deleted, so they leave nothing behind for the e2e run.
+      - name: Run integration tests
+        run: npm run test:integration -- --reporter=default --reporter=json --outputFile.json=test-results/integration-report.json
+      - name: Integration summary
+        if: always()
+        run: node scripts/ci-summary.mjs vitest test-results/integration-report.json Integration
       - name: Run e2e tests
         run: npm run test:e2e -- --reporter=list,html,json,github
         env:
