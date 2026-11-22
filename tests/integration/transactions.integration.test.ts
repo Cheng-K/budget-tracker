@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   createTransactionAction,
@@ -246,5 +247,34 @@ describe("listTransactions", () => {
     expect(seen).toHaveLength(5);
     expect(new Set(seen).size).toBe(5);
     expect(seen.sort()).toEqual(ids.sort());
+  });
+});
+
+describe("RSC serialization boundary", () => {
+  it("getTransaction returns exact string amount/lat/lng", async () => {
+    const tx = await addTransaction(t, {
+      amount: "1234.5678",
+      lat: new Prisma.Decimal("51.507400"),
+      lng: new Prisma.Decimal("-0.127800"),
+    });
+
+    const row = await getTransaction(t.user.id, tx.id);
+    expect(row).not.toBeNull();
+    expect(row!.amount).toBe("1234.5678");
+    expect(row!.lat).toBe("51.5074");
+    expect(row!.lng).toBe("-0.1278");
+  });
+
+  it("listTransactions returns string amounts and null coordinates", async () => {
+    await addTransaction(t, { amount: "10.00" });
+
+    const page = await listTransactions(
+      t.user.id,
+      transactionFilterSchema.parse({})
+    );
+    expect(page.items).toHaveLength(1);
+    expect(page.items[0].amount).toBe("10");
+    expect(page.items[0].lat).toBeNull();
+    expect(page.items[0].lng).toBeNull();
   });
 });

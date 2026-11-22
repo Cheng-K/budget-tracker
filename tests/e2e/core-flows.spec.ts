@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
-import { login } from "./helpers";
+import { login, collectSerializationErrors } from "./helpers";
 
 /**
  * High-severity user journeys beyond the golden path: receipts, edit/delete,
@@ -73,6 +73,7 @@ test.describe("receipts", () => {
 
   test("edit keeps the receipt; Remove unlinks it", async ({ page }) => {
     await login(page);
+    const serializationErrors = collectSerializationErrors(page);
     const note = `receipt edit ${Date.now()}`;
     await createTransactionViaUI(page, {
       amountDigits: "1250",
@@ -100,6 +101,9 @@ test.describe("receipts", () => {
     await page.getByRole("button", { name: "Save changes" }).click();
     await expect(page).toHaveURL(/\/transactions\/[^/]+$/);
     await expect(page.getByRole("img", { name: "Receipt", exact: true })).toHaveCount(0);
+
+    // Edit props must cross the RSC boundary as plain values, not Decimals.
+    expect(serializationErrors).toEqual([]);
   });
 });
 
@@ -146,6 +150,7 @@ test.describe("transaction lifecycle", () => {
 test.describe("recurring", () => {
   test("template materializes once and re-running creates no duplicates", async ({ page }) => {
     await login(page);
+    const serializationErrors = collectSerializationErrors(page);
     await page.goto("/recurring");
     await page.getByRole("button", { name: "+ Add recurring transaction" }).click();
 
@@ -172,6 +177,9 @@ test.describe("recurring", () => {
     await expect(page.getByRole("button", { name: "Run due now" })).toBeEnabled();
     await page.goto("/transactions");
     await expect(page.getByText(/Showing 1 transactions/)).toBeVisible();
+
+    // Template props must cross the RSC boundary as plain values, not Decimals.
+    expect(serializationErrors).toEqual([]);
   });
 
   test("rejects end date before start date with a visible error", async ({ page }) => {

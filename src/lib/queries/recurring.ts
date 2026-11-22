@@ -1,5 +1,16 @@
 import { prisma } from "@/lib/db";
-import type { RecurringFrequency, TransactionType } from "@prisma/client";
+import type { Prisma, RecurringFrequency, TransactionType } from "@prisma/client";
+
+type TemplateWithRelations = Prisma.RecurringTemplateGetPayload<{
+  include: { category: true };
+}>;
+
+// Decimal class instances can't cross the RSC boundary into client
+// components; expose them as exact strings instead.
+export type SerializedTemplate = Omit<TemplateWithRelations, "amount"> & {
+  amount: string;
+  lastOccurrence: { occurrenceDate: Date; transactionId: string | null } | null;
+};
 
 export async function listTemplates(userId: string) {
   const [templates, lastRows] = await Promise.all([
@@ -20,10 +31,11 @@ export async function listTemplates(userId: string) {
   ]);
 
   const occMap = new Map(lastRows.map((o) => [o.templateId, o]));
-  return templates.map((t) => {
+  return templates.map((t): SerializedTemplate => {
     const occ = occMap.get(t.id);
     return {
       ...t,
+      amount: t.amount.toString(),
       lastOccurrence: occ
         ? { occurrenceDate: occ.occurrenceDate, transactionId: occ.transactionId }
         : null,

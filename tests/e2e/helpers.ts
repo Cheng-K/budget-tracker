@@ -36,3 +36,18 @@ export async function login(page: Page, opts: LoginOptions = {}): Promise<string
 
   return email;
 }
+
+/**
+ * Collects React's "Only plain objects" RSC serialization errors from the
+ * browser console (the dev server replays them client-side). Assert the
+ * returned array is empty to prove server→client props are wire-safe.
+ */
+export function collectSerializationErrors(page: Page): string[] {
+  const errors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error" && msg.text().includes("Only plain objects")) {
+      errors.push(msg.text());
+    }
+  });
+  return errors;
+}

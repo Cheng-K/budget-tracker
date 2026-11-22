@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { materializeDueForUser } from "@/lib/recurring";
+import { listTemplates } from "@/lib/queries/recurring";
 import {
   createTestUser,
   cleanupTestUsers,
@@ -159,5 +160,16 @@ describe("materializeDueForUser", () => {
     await expect(materializeDueForUser(t.user.id, TODAY)).rejects.toThrow(
       "connection lost"
     );
+  });
+});
+
+describe("listTemplates", () => {
+  it("returns wire-safe string amounts with lastOccurrence attached", async () => {
+    await makeTemplate({ amount: "50.0000" });
+
+    const templates = await listTemplates(t.user.id);
+    expect(templates).toHaveLength(1);
+    expect(templates[0].amount).toBe("50");
+    expect(templates[0].lastOccurrence).toBeNull();
   });
 });

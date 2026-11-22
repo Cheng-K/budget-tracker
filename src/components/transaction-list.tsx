@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { formatMoney } from "@/lib/money";
-import type { Category, PaymentMethod, Transaction, Receipt } from "@prisma/client";
-
-type TransactionWithRelations = Transaction & {
-  category: Category;
-  paymentMethod: PaymentMethod;
-  receipt?: Receipt | null;
-};
+import type { SerializedTransaction } from "@/lib/queries/transactions";
 
 export function TransactionList({
   items,
   currency,
 }: {
-  items: TransactionWithRelations[];
+  items: SerializedTransaction[];
   currency: string;
 }) {
   if (items.length === 0) {
@@ -31,7 +25,7 @@ export function TransactionList({
   }
 
   // Group by date.
-  const groups = new Map<string, TransactionWithRelations[]>();
+  const groups = new Map<string, SerializedTransaction[]>();
   for (const t of items) {
     const key = t.date.toISOString().slice(0, 10);
     const arr = groups.get(key) ?? [];

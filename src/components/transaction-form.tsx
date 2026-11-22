@@ -7,13 +7,14 @@ import {
 } from "@/lib/actions/transactions";
 import { ReceiptUpload } from "@/components/receipt-upload";
 import { AmountInput } from "@/components/amount-input";
-import type { Category, PaymentMethod, Receipt, Transaction } from "@prisma/client";
+import type { Category, PaymentMethod } from "@prisma/client";
+import type { SerializedTransaction } from "@/lib/queries/transactions";
 
 interface TransactionFormProps {
   categories: Category[];
   paymentMethods: PaymentMethod[];
   defaultCurrency: string;
-  transaction?: Transaction & { receipt?: Receipt | null }; // present => edit mode
+  transaction?: SerializedTransaction; // present => edit mode
 }
 
 export function TransactionForm({
