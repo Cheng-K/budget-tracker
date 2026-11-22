@@ -82,13 +82,6 @@ jobs:
       # timeout isn't spent pulling Docker images. `npm run dev` (the
       # webServer command) re-runs both idempotently.
       - run: npm run infra
-      # S3Mock's initialBuckets doesn't reliably create buckets when a
-      # rootDirectory volume is mounted; provision it explicitly (idempotent).
-      - name: Ensure S3 bucket exists
-        run: |
-          if ! curl -sfI -o /dev/null "$S3_PUBLIC_ENDPOINT/$S3_BUCKET"; then
-            curl -sf -X PUT "$S3_PUBLIC_ENDPOINT/$S3_BUCKET"
-          fi
       - run: npm run db:migrate
       # DB-backed integration tests share the e2e job's infra; per-test users
       # are cascade-deleted, so they leave nothing behind for the e2e run.
