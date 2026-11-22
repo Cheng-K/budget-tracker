@@ -179,34 +179,33 @@ function BudgetRow({
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">{item.categoryName}</span>
+      <div className="text-sm font-medium">{item.categoryName}</div>
+
+      <div className="mt-2 flex items-center gap-3">
+        <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+          <div
+            className={`h-full rounded-full transition-all ${barColor}`}
+            style={{ width: `${Math.min(item.percentage, 100)}%` }}
+          />
+        </div>
+        <span className={`shrink-0 whitespace-nowrap text-xs ${item.isOver ? "text-red-600" : "text-neutral-500 dark:text-neutral-400"}`}>
+          {item.isOver
+            ? `Over by ${formatMoney((parseFloat(item.spentAmount) - parseFloat(item.limitAmount)).toFixed(2), currency)}`
+            : `${item.percentage}% used`}
+        </span>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <span className="text-sm">
           <span className={item.isOver ? "font-semibold text-red-600" : "text-neutral-900 dark:text-neutral-100"}>
             {formatMoney(item.spentAmount, currency)}
           </span>
           <span className="text-neutral-400 dark:text-neutral-500">
-            {" / "}
+            {" of "}
             {formatMoney(item.limitAmount, currency)}
           </span>
         </span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
-        <div
-          className={`h-full rounded-full transition-all ${barColor}`}
-          style={{ width: `${Math.min(item.percentage, 100)}%` }}
-        />
-      </div>
-
-      <div className="mt-2 flex items-center justify-between">
-        <span className={`text-xs ${item.isOver ? "text-red-600" : "text-neutral-500 dark:text-neutral-400"}`}>
-          {item.isOver
-            ? `Over by ${formatMoney((parseFloat(item.spentAmount) - parseFloat(item.limitAmount)).toFixed(2), currency)}`
-            : `${item.percentage}% used`}
-        </span>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <button
             onClick={onEdit}
             disabled={isPending}

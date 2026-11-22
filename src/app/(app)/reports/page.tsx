@@ -5,8 +5,8 @@ import { getMonthRange } from "@/lib/month";
 import { MonthSwitcher } from "@/components/month-switcher";
 import { formatMoney } from "@/lib/money";
 import { TrendChart } from "@/components/trend-chart-loader";
-import { CategoryBreakdown } from "@/components/category-breakdown";
-import { StatsRowSkeleton, ListSkeleton, ChartSkeleton } from "@/components/skeletons";
+import { CategoryPieChart } from "@/components/category-pie-chart-loader";
+import { StatsRowSkeleton, ChartSkeleton } from "@/components/skeletons";
 
 export default async function ReportsPage({
   searchParams,
@@ -15,7 +15,7 @@ export default async function ReportsPage({
 }) {
   const [user, sp] = await Promise.all([requireUser(), searchParams]);
   const monthParam = Array.isArray(sp.month) ? sp.month[0] : sp.month;
-  const { start: monthDate, label: monthLabel } = getMonthRange(monthParam);
+  const { start: monthDate, key: monthKey, label: monthLabel } = getMonthRange(monthParam);
 
   const currency = user.currencyCode ?? "USD";
   // Started eagerly; both sections below await the same in-flight query.
@@ -40,8 +40,8 @@ export default async function ReportsPage({
       {/* Category breakdown */}
       <section>
         <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Spending by category</h2>
-        <Suspense fallback={<ListSkeleton rows={5} />}>
-          <CategorySection summary={summaryPromise} currency={currency} />
+        <Suspense fallback={<ChartSkeleton />}>
+          <CategorySection summary={summaryPromise} currency={currency} monthKey={monthKey} />
         </Suspense>
       </section>
 
@@ -94,17 +94,21 @@ async function SummaryChips({
 async function CategorySection({
   summary: summaryPromise,
   currency,
+  monthKey,
 }: {
   summary: SummaryPromise;
   currency: string;
+  monthKey: string;
 }) {
   const summary = await summaryPromise;
 
   return (
-    <CategoryBreakdown
+    <CategoryPieChart
+      key={monthKey}
       items={summary.categoryBreakdown}
       currency={currency}
       totalExpenses={summary.totalExpenses}
+      monthKey={monthKey}
     />
   );
 }

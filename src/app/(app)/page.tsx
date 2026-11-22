@@ -94,12 +94,13 @@ async function SummaryCards({
 
   const income = incomeAgg._sum.amount ?? 0;
   const expenses = expenseAgg._sum.amount ?? 0;
+  const net = Number(income) - Number(expenses);
 
   return (
     <div className="grid grid-cols-3 gap-2">
       <SummaryChip label="Income" value={formatMoney(income, currency.code)} tone="green" />
       <SummaryChip label="Expenses" value={formatMoney(expenses, currency.code)} tone="red" />
-      <SummaryChip label="Net" value={formatMoney(Number(income) - Number(expenses), currency.code)} tone="neutral" />
+      <SummaryChip label="Net" value={formatMoney(net, currency.code)} tone={net >= 0 ? "green" : "red"} />
     </div>
   );
 }
