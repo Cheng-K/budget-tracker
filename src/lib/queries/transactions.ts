@@ -1,6 +1,30 @@
 import { prisma } from "@/lib/db";
-import type { Prisma, Transaction } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { TransactionFilterInput } from "@/lib/validation";
+
+type TransactionWithRelations = Prisma.TransactionGetPayload<{
+  include: { category: true; receipt: true; paymentMethod: true };
+}>;
+
+// Decimal class instances can't cross the RSC boundary into client
+// components; expose them as exact strings instead.
+export type SerializedTransaction = Omit<
+  TransactionWithRelations,
+  "amount" | "lat" | "lng"
+> & {
+  amount: string;
+  lat: string | null;
+  lng: string | null;
+};
+
+function serializeTransaction(t: TransactionWithRelations): SerializedTransaction {
+  return {
+    ...t,
+    amount: t.amount.toString(),
+    lat: t.lat?.toString() ?? null,
+    lng: t.lng?.toString() ?? null,
+  };
+}
 
 export async function listTransactions(
   userId: string,
@@ -35,14 +59,18 @@ export async function listTransactions(
     ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
   });
 
-  return { items, nextCursor: items.length === filter.limit ? items[items.length - 1]?.id : null };
+  return {
+    items: items.map(serializeTransaction),
+    nextCursor: items.length === filter.limit ? items[items.length - 1]?.id : null,
+  };
 }
 
 export async function getTransaction(userId: string, id: string) {
-  return prisma.transaction.findFirst({
+  const t = await prisma.transaction.findFirst({
     where: { id, userId },
     include: { category: true, receipt: true, paymentMethod: true },
   });
+  return t ? serializeTransaction(t) : null;
 }
 
 export async function createTransaction(
@@ -78,6 +106,8 @@ export async function createTransaction(
       lng: (data.lng ?? null) as Prisma.Decimal | null,
       recurringTemplateId: data.recurringTemplateId || null,
       occurrenceDate: data.occurrenceDate ?? null,
+      // Receipt owns the FK (Receipt.transactionId), so link from this side.
+      ...(data.receiptId ? { receipt: { connect: { id: data.receiptId } } } : {}),
     },
     include: { category: true, paymentMethod: true },
   });
@@ -115,6 +145,12 @@ export async function updateTransaction(
       ...(data.locationLabel !== undefined && { locationLabel: data.locationLabel || null }),
       ...(data.lat !== undefined && { lat: data.lat as Prisma.Decimal | null }),
       ...(data.lng !== undefined && { lng: data.lng as Prisma.Decimal | null }),
+      // undefined = leave the link alone; null/"" = unlink; id = (re)link.
+      ...(data.receiptId !== undefined && {
+        receipt: data.receiptId
+          ? { connect: { id: data.receiptId } }
+          : { disconnect: true },
+      }),
     },
     include: { category: true, paymentMethod: true },
   });

@@ -1,25 +1,20 @@
 "use client";
 
 import { useTransition } from "react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { formatMoney } from "@/lib/money";
 import {
   toggleTemplateAction,
   deleteTemplateAction,
   materializeNowAction,
 } from "@/lib/actions/recurring";
-import type { Category, RecurringTemplate } from "@prisma/client";
-
-type TemplateWithRelations = RecurringTemplate & {
-  category: Category;
-  lastOccurrence: { occurrenceDate: Date; transactionId: string | null } | null;
-};
+import type { SerializedTemplate } from "@/lib/queries/recurring";
 
 export function RecurringList({
   templates,
   currency,
 }: {
-  templates: TemplateWithRelations[];
+  templates: SerializedTemplate[];
   currency: string;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -123,7 +118,7 @@ export function RecurringList({
   );
 }
 
-function getNextDate(t: RecurringTemplate): Date | null {
+function getNextDate(t: SerializedTemplate): Date | null {
   const now = new Date();
   if (!t.isActive) return null;
   if (t.endDate && t.endDate < now) return null;

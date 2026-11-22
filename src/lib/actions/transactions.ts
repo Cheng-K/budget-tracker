@@ -11,8 +11,11 @@ import {
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  getTransaction,
 } from "@/lib/queries/transactions";
 import { getPaymentMethod } from "@/lib/queries/payment-methods";
+import { getCategory } from "@/lib/queries/categories";
+import { getReceipt } from "@/lib/queries/receipts";
 import { toDecimal, parseUserAmount } from "@/lib/money";
 
 function parseDate(dateStr: string): Date {
@@ -46,8 +49,22 @@ export async function createTransactionAction(formData: FormData) {
   const amount = parseUserAmount(d.amount);
   if (!amount) return { error: "Invalid amount" };
 
+  const category = await getCategory(user.id, d.categoryId);
+  if (!category) return { error: "Invalid category" };
+  if (category.kind !== d.type) {
+    return { error: "Category does not match transaction type" };
+  }
+
   const paymentMethod = await getPaymentMethod(user.id, d.paymentMethodId);
   if (!paymentMethod) return { error: "Invalid payment method" };
+
+  if (d.receiptId) {
+    const receipt = await getReceipt(user.id, d.receiptId);
+    if (!receipt) return { error: "Invalid receipt" };
+    if (receipt.transactionId) {
+      return { error: "Receipt already attached to a transaction" };
+    }
+  }
 
   await createTransaction(user.id, user.currencyCode!, {
     type: d.type,
@@ -97,6 +114,28 @@ export async function updateTransactionAction(id: string, formData: FormData) {
     if (!paymentMethod) return { error: "Invalid payment method" };
   }
 
+  // Changing category or type must keep both owned and kind-consistent,
+  // including the field that wasn't submitted.
+  if (d.categoryId || d.type) {
+    const existing = await getTransaction(user.id, id);
+    if (!existing) return { error: "Transaction not found" };
+    const categoryId = d.categoryId ?? existing.categoryId;
+    const type = d.type ?? existing.type;
+    const category = await getCategory(user.id, categoryId);
+    if (!category) return { error: "Invalid category" };
+    if (category.kind !== type) {
+      return { error: "Category does not match transaction type" };
+    }
+  }
+
+  if (d.receiptId) {
+    const receipt = await getReceipt(user.id, d.receiptId);
+    if (!receipt) return { error: "Invalid receipt" };
+    if (receipt.transactionId && receipt.transactionId !== id) {
+      return { error: "Receipt already attached to a transaction" };
+    }
+  }
+
   const result = await updateTransaction(user.id, id, {
     ...(d.type && { type: d.type }),
     ...(amount && { amount }),
@@ -107,6 +146,7 @@ export async function updateTransactionAction(id: string, formData: FormData) {
     ...(d.locationLabel !== undefined && { locationLabel: d.locationLabel || null }),
     ...(d.lat !== undefined && { lat: d.lat ? toDecimal(d.lat) : null }),
     ...(d.lng !== undefined && { lng: d.lng ? toDecimal(d.lng) : null }),
+    ...(d.receiptId !== undefined && { receiptId: d.receiptId || null }),
   });
 
   if (!result) return { error: "Transaction not found" };

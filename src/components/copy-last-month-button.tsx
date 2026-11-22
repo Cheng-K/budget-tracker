@@ -10,7 +10,9 @@ export function CopyLastMonthButton({ month }: { month: string }) {
     <button
       onClick={() => {
         if (confirm("Copy last month's budgets to this month?")) {
-          startTransition(() => copyLastMonthBudgetsAction(month));
+          startTransition(async () => {
+            await copyLastMonthBudgetsAction(month);
+          });
         }
       }}
       disabled={isPending}

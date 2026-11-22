@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Modal } from "@/components/modal";
 import { AmountInput } from "@/components/amount-input";
 
@@ -23,16 +23,10 @@ export function BudgetAmountModal({
   onConfirm,
   isPending,
 }: BudgetAmountModalProps) {
+  // The parent mounts this only while open, so the initializers double as
+  // the reset-on-open behavior.
   const [amount, setAmount] = useState(currentAmount ?? "");
   const [error, setError] = useState<string | null>(null);
-
-  // Reset when opening.
-  useEffect(() => {
-    if (open) {
-      setAmount(currentAmount ?? "");
-      setError(null);
-    }
-  }, [open, currentAmount]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

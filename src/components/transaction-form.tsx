@@ -7,13 +7,14 @@ import {
 } from "@/lib/actions/transactions";
 import { ReceiptUpload } from "@/components/receipt-upload";
 import { AmountInput } from "@/components/amount-input";
-import type { Category, PaymentMethod, Transaction } from "@prisma/client";
+import type { Category, PaymentMethod } from "@prisma/client";
+import type { SerializedTransaction } from "@/lib/queries/transactions";
 
 interface TransactionFormProps {
   categories: Category[];
   paymentMethods: PaymentMethod[];
   defaultCurrency: string;
-  transaction?: Transaction; // present => edit mode
+  transaction?: SerializedTransaction; // present => edit mode
 }
 
 export function TransactionForm({
@@ -27,7 +28,9 @@ export function TransactionForm({
     (transaction?.type as "EXPENSE" | "INCOME") ?? "EXPENSE"
   );
   const [error, setError] = useState<string | null>(null);
-  const [receiptId, setReceiptId] = useState<string>(transaction ? "" : "");
+  const [receiptId, setReceiptId] = useState<string>(
+    transaction?.receipt?.id ?? ""
+  );
 
   const isEdit = !!transaction;
   // Hidden rows stay in the option set when they're the current value,
@@ -238,7 +241,10 @@ export function TransactionForm({
         <input type="hidden" name="lng" defaultValue={transaction?.lng ? String(transaction.lng) : ""} />
       </div>
 
-      <ReceiptUpload onUploaded={setReceiptId} />
+      <ReceiptUpload
+        currentReceiptId={transaction?.receipt?.id ?? null}
+        onUploaded={setReceiptId}
+      />
       <input type="hidden" name="receiptId" value={receiptId} />
 
       {/* Submit */}

@@ -1,5 +1,7 @@
+import type { Decimal } from "decimal.js";
 import { prisma } from "@/lib/db";
-import { utcMonthStart, utcMonthEnd, getPrevMonth } from "@/lib/month";
+import { utcMonthEnd, getPrevMonth } from "@/lib/month";
+import { toDecimal, ZERO } from "@/lib/money";
 
 function monthLabel(d: Date): string {
   return d.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
@@ -37,37 +39,37 @@ export async function getMonthlySummary(userId: string, month: Date) {
 
   const budgetMap = new Map(budgets.map((b) => [b.categoryId, b.limitAmount.toString()]));
 
-  let income = 0;
-  let expenses = 0;
-  const expenseByCategory = new Map<string, { amount: number; count: number }>();
+  let income = ZERO;
+  let expenses = ZERO;
+  const expenseByCategory = new Map<string, { amount: Decimal; count: number }>();
 
   for (const row of byTypeCategory) {
-    const amount = parseFloat(row._sum.amount?.toString() ?? "0");
+    const amount = toDecimal(row._sum.amount?.toString() ?? "0");
     if (row.type === "INCOME") {
-      income += amount;
+      income = income.add(amount);
     } else {
-      expenses += amount;
-      const entry = expenseByCategory.get(row.categoryId) ?? { amount: 0, count: 0 };
-      entry.amount += amount;
+      expenses = expenses.add(amount);
+      const entry = expenseByCategory.get(row.categoryId) ?? { amount: ZERO, count: 0 };
+      entry.amount = entry.amount.add(amount);
       entry.count += row._count;
       expenseByCategory.set(row.categoryId, entry);
     }
   }
 
   const categoryBreakdown = [...expenseByCategory.entries()]
+    .sort((a, b) => b[1].amount.cmp(a[1].amount))
     .map(([categoryId, { amount, count }]) => ({
       categoryId,
       name: catMap.get(categoryId) ?? "Unknown",
       amount: amount.toFixed(2),
       count,
       budget: budgetMap.get(categoryId) ?? null,
-    }))
-    .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+    }));
 
   return {
     totalIncome: income.toFixed(2),
     totalExpenses: expenses.toFixed(2),
-    net: (income - expenses).toFixed(2),
+    net: income.sub(expenses).toFixed(2),
     categoryBreakdown,
   };
 }
@@ -100,25 +102,25 @@ export async function getTrendSeries(userId: string, months: number = 12) {
     GROUP BY 1, 2
   `;
 
-  const byMonth = new Map<string, { income: number; expenses: number }>();
+  const byMonth = new Map<string, { income: Decimal; expenses: Decimal }>();
   for (const row of rows) {
-    const entry = byMonth.get(row.month) ?? { income: 0, expenses: 0 };
-    const amount = parseFloat(row.total);
-    if (row.type === "INCOME") entry.income += amount;
-    else entry.expenses += amount;
+    const entry = byMonth.get(row.month) ?? { income: ZERO, expenses: ZERO };
+    const amount = toDecimal(row.total);
+    if (row.type === "INCOME") entry.income = entry.income.add(amount);
+    else entry.expenses = entry.expenses.add(amount);
     byMonth.set(row.month, entry);
   }
 
   return monthsList.map(({ month, label, fullLabel }) => {
     const key = `${month.getUTCFullYear()}-${String(month.getUTCMonth() + 1).padStart(2, "0")}`;
-    const { income, expenses } = byMonth.get(key) ?? { income: 0, expenses: 0 };
+    const { income, expenses } = byMonth.get(key) ?? { income: ZERO, expenses: ZERO };
 
     return {
       label,
       fullLabel,
       income: income.toFixed(2),
       expenses: expenses.toFixed(2),
-      net: (income - expenses).toFixed(2),
+      net: income.sub(expenses).toFixed(2),
     };
   });
 }

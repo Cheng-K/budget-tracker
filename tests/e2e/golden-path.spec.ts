@@ -1,14 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Golden-path E2E tests.
+ * Golden-path E2E tests for the unauthenticated surface.
  *
- * These require:
- * 1. Docker Compose running (postgres + s3)
- * 2. Database migrated (`npx prisma migrate deploy`)
- * 3. OAuth credentials in .env (or a test auth bypass)
- *
- * For CI, a test-only credentials provider should be added to Auth.js.
+ * Playwright starts `npm run dev`, which provisions docker (postgres + s3)
+ * and runs migrations. Authenticated flows live in authenticated.spec.ts —
+ * they sign in through the test-only /api/auth/e2e-login endpoint (a real
+ * database session, so no OAuth credentials are needed).
  */
 
 test.describe("Budget Tracker golden path", () => {
