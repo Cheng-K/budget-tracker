@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import type { Category } from "@prisma/client";
 import {
   createCategoryAction,
@@ -15,8 +15,16 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const expenseCategories = categories.filter((c) => c.kind === "EXPENSE");
-  const incomeCategories = categories.filter((c) => c.kind === "INCOME");
+  // Stable references: SortableSettingsList resyncs on items identity, so
+  // fresh arrays per render would reset its optimistic drag order mid-flight.
+  const expenseCategories = useMemo(
+    () => categories.filter((c) => c.kind === "EXPENSE"),
+    [categories]
+  );
+  const incomeCategories = useMemo(
+    () => categories.filter((c) => c.kind === "INCOME"),
+    [categories]
+  );
 
   function handleCreate(formData: FormData) {
     setError(null);
