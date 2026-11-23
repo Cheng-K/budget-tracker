@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/require-user";
 import { getMonthlySummary, getTrendSeries } from "@/lib/queries/reports";
 import { getMonthRange } from "@/lib/month";
 import { MonthSwitcher } from "@/components/month-switcher";
-import { formatMoney } from "@/lib/money";
+import { SummaryStats } from "@/components/summary-stats";
 import { TrendChart } from "@/components/trend-chart-loader";
 import { CategoryPieChart } from "@/components/category-pie-chart-loader";
 import { StatsRowSkeleton, ChartSkeleton } from "@/components/skeletons";
@@ -33,7 +33,7 @@ export default async function ReportsPage({
       <section>
         <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{monthLabel}</h2>
         <Suspense fallback={<StatsRowSkeleton />}>
-          <SummaryChips summary={summaryPromise} currency={currency} />
+          <SummarySection summary={summaryPromise} currency={currency} />
         </Suspense>
       </section>
 
@@ -58,7 +58,7 @@ export default async function ReportsPage({
 
 type SummaryPromise = ReturnType<typeof getMonthlySummary>;
 
-async function SummaryChips({
+async function SummarySection({
   summary: summaryPromise,
   currency,
 }: {
@@ -68,25 +68,13 @@ async function SummaryChips({
   const summary = await summaryPromise;
 
   return (
-    <div className="mt-3 grid grid-cols-3 gap-2">
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-        <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Income</p>
-        <p className="mt-1 text-sm font-semibold text-emerald-600">
-          {formatMoney(summary.totalIncome, currency)}
-        </p>
-      </div>
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-        <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Expenses</p>
-        <p className="mt-1 text-sm font-semibold text-red-600">
-          {formatMoney(summary.totalExpenses, currency)}
-        </p>
-      </div>
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-        <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Net</p>
-        <p className={`mt-1 text-sm font-semibold ${parseFloat(summary.net) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-          {formatMoney(summary.net, currency)}
-        </p>
-      </div>
+    <div className="mt-3">
+      <SummaryStats
+        income={summary.totalIncome}
+        expenses={summary.totalExpenses}
+        net={summary.net}
+        currency={currency}
+      />
     </div>
   );
 }
