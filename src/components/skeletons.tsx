@@ -3,13 +3,17 @@ const CARD =
 
 export function StatsRowSkeleton() {
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className={`${CARD} px-3 py-3`}>
-          <div className="h-3 w-12 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-          <div className="mt-2 h-4 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-        </div>
-      ))}
+    <div className={`${CARD} px-4 py-4`}>
+      <div className="h-3 w-8 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+      <div className="mt-1 h-8 w-36 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+      <div className="mt-3 flex flex-col gap-2 border-t border-neutral-100 dark:border-neutral-800 pt-3">
+        {[0, 1].map((i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div className="h-3.5 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+            <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

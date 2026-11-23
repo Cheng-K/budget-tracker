@@ -10,6 +10,7 @@ import {
   StatsRowSkeleton,
   ListSkeleton,
 } from "@/components/skeletons";
+import { SummaryStats } from "@/components/summary-stats";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -97,11 +98,7 @@ async function SummaryCards({
   const net = Number(income) - Number(expenses);
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      <SummaryChip label="Income" value={formatMoney(income, currency.code)} tone="green" />
-      <SummaryChip label="Expenses" value={formatMoney(expenses, currency.code)} tone="red" />
-      <SummaryChip label="Net" value={formatMoney(net, currency.code)} tone={net >= 0 ? "green" : "red"} />
-    </div>
+    <SummaryStats income={income} expenses={expenses} net={net} currency={currency.code} />
   );
 }
 
@@ -218,25 +215,3 @@ async function RecentTransactions({
   );
 }
 
-function SummaryChip({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "green" | "red" | "neutral";
-}) {
-  const toneClass =
-    tone === "green"
-      ? "text-emerald-600"
-      : tone === "red"
-        ? "text-red-600"
-        : "text-neutral-900 dark:text-neutral-100";
-  return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-3">
-      <p className="text-[12px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{label}</p>
-      <p className={`mt-1 truncate text-sm font-semibold ${toneClass}`}>{value}</p>
-    </div>
-  );
-}
