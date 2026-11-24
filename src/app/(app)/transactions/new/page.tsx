@@ -12,7 +12,6 @@ export default async function NewTransactionPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold tracking-tight">Add transaction</h1>
       <TransactionForm
         categories={categories}
         paymentMethods={paymentMethods}

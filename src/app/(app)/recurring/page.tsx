@@ -15,8 +15,6 @@ export default async function RecurringPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-lg font-semibold tracking-tight">Recurring transactions</h1>
-
       <CreateTemplateForm
         categories={categories}
         paymentMethods={paymentMethods}
