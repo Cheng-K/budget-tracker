@@ -15,8 +15,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-lg font-semibold tracking-tight">Settings</h1>
-
       {/* Profile */}
       <section>
         <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Profile</h2>
